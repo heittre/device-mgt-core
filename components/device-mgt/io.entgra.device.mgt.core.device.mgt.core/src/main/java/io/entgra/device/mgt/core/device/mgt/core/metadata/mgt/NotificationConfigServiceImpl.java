@@ -37,6 +37,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -55,10 +56,15 @@ public class NotificationConfigServiceImpl {
             if (!metadataDAO.isExist(tenantId, MetadataConstants.NOTIFICATION_CONFIG_META_KEY)) {
                 Metadata configMetadata = constructNotificationConfigContext(configurations);
                 metadataDAO.addMetadata(tenantId, configMetadata);
+            }else {
+                String message = "Notification configurations already exist for tenant: " + tenantId;
+                log.error(message);
+                throw new IllegalStateException(message);
             }
         } catch (MetadataManagementDAOException e) {
             String message = "Error adding notification configuration context";
             log.error(message, e);
+            throw new MetadataManagementException(message, e);
         }
     }
 
@@ -107,11 +113,13 @@ public class NotificationConfigServiceImpl {
                 throw new NoSuchElementException(message);
             }
 
+
             ObjectMapper objectMapper = new ObjectMapper();
             List<NotificationConfigDTO> configurations = objectMapper.readValue(
                     existingMetadata.getMetaValue(),
                     objectMapper.getTypeFactory().constructCollectionType(List.class, NotificationConfigDTO.class)
             );
+
 
             boolean isRemoved = configurations.removeIf(config -> config.getOperationId().equals(operationId));
             if (!isRemoved) {
@@ -120,8 +128,10 @@ public class NotificationConfigServiceImpl {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, message);
             }
 
+
             existingMetadata.setMetaValue(objectMapper.writeValueAsString(configurations));
             metadataDAO.updateMetadata(tenantId, existingMetadata);
+
 
         } catch (NoSuchElementException | IllegalArgumentException e) {
             log.error(e.getMessage(), e);
@@ -139,6 +149,7 @@ public class NotificationConfigServiceImpl {
 
 
 
+
     /**
      * Updates an existing notification configuration or adds a new configuration to the Metadata context for a given tenant.
      *
@@ -152,7 +163,7 @@ public class NotificationConfigServiceImpl {
      * the provided configuration as a new entry. The updated configurations are then serialized and saved back to the Metadata context.
      */
 
-    public void upsertNotificationConfigContext(int tenantId, NotificationConfigDTO updatedConfig) throws MetadataManagementException {
+    public void updateNotificationConfigContext(int tenantId, NotificationConfigDTO updatedConfig) throws MetadataManagementException {
         try {
             Metadata existingMetadata;
             try {
@@ -214,6 +225,93 @@ public class NotificationConfigServiceImpl {
             throw new MetadataManagementException(message, e);
         }
     }
+
+    public void deleteNotificationConfigurations(int tenantId) throws MetadataManagementDAOException {
+        try {
+            Metadata existingMetadata = metadataDAO.getMetadata(tenantId, MetadataConstants.NOTIFICATION_CONFIG_META_KEY);
+            if (existingMetadata == null) {
+                String message = "No notification configuration context found for tenant: " + tenantId;
+                throw new NoSuchElementException(message);
+            }
+
+            ObjectMapper objectMapper = new ObjectMapper();
+
+            existingMetadata.setMetaValue(objectMapper.writeValueAsString(Collections.emptyList()));
+            metadataDAO.updateMetadata(tenantId, existingMetadata);
+
+
+        } catch (NoSuchElementException | IllegalArgumentException e) {
+            log.error("Error clearing configurations");
+            throw e;
+        } catch (MetadataManagementDAOException e) {
+            String message = "Database error while updating metadata for tenant ID: " + tenantId;
+            log.error(message, e);
+            throw new MetadataManagementDAOException(message, e);
+        } catch (Exception e) {
+            String message = "Unexpected error occurred while deleting notification configurations for tenant ID: " + tenantId;
+            log.error(message, e);
+            throw new RuntimeException(message, e);
+        }
+    }
+
+    public List<NotificationConfigDTO> getNotificationConfigurations(int tenantId) throws MetadataManagementDAOException {
+        try {
+            Metadata existingMetadata = metadataDAO.getMetadata(tenantId, MetadataConstants.NOTIFICATION_CONFIG_META_KEY);
+
+            if (existingMetadata == null) {
+                log.warn("No notification configurations found for tenant");
+                return Collections.emptyList();
+            }
+
+            ObjectMapper objectMapper = new ObjectMapper();
+            return objectMapper.readValue(
+                    existingMetadata.getMetaValue(),
+                    objectMapper.getTypeFactory().constructCollectionType(List.class, NotificationConfigDTO.class)
+            );
+        } catch (MetadataManagementDAOException e) {
+            String message = "Database error occurred while retrieving notification configurations for tenant ID: " + tenantId;
+            log.error(message, e);
+            throw new MetadataManagementDAOException(message, e);
+        } catch (Exception e) {
+            String message = "Unexpected error occurred while retrieving notification configurations for tenant ID: " + tenantId;
+            log.error(message, e);
+            throw new RuntimeException(message, e);
+        }
+    }
+
+
+
+
+    public NotificationConfigDTO getNotificationConfigById(int tenantId, String id) throws MetadataManagementDAOException {
+        try {
+            Metadata metadata = metadataDAO.getMetadata(tenantId, MetadataConstants.NOTIFICATION_CONFIG_META_KEY);
+            if (metadata == null) {
+                log.error("No configurations found for tenant: " + tenantId);
+                return null;
+            }
+
+            ObjectMapper objectMapper = new ObjectMapper();
+            List<NotificationConfigDTO> configurations = objectMapper.readValue(
+                    metadata.getMetaValue(),
+                    objectMapper.getTypeFactory().constructCollectionType(List.class, NotificationConfigDTO.class)
+            );
+
+            for (NotificationConfigDTO config : configurations) {
+                if (config.getOperationId().equals(id)) {
+                    return config;
+                }
+            }
+
+            log.warn("Configuration with ID '" + id + "' not found for tenant: " + tenantId);
+            return null;
+        } catch (Exception e) {
+            String message = "Error retrieving notification configuration by ID.";
+            log.error(message, e);
+            throw new MetadataManagementDAOException(message, e);
+        }
+    }
+
+
 }
 
 
