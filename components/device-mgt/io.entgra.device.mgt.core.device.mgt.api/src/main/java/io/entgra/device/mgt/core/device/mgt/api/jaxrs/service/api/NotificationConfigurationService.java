@@ -118,16 +118,68 @@ public interface NotificationConfigurationService {
     );
 
 
-    @GET
+
+    @PUT
     @ApiOperation(
-            produces = MediaType.TEXT_PLAIN,
-            httpMethod = HTTPConstants.HEADER_GET,
-            value = "Test Notification Configuration",
-            notes = "This endpoint is for testing purposes and returns a simple text response.",
+            produces = MediaType.APPLICATION_JSON,
+            httpMethod = HTTPConstants.HEADER_PUT,
+            value = "Update Notification Configuration",
+            notes = "Update notification configurations based on the input received from the UI.",
             tags = "Notification Configuration Management",
             extensions = {
                     @Extension(properties = {
-                            @ExtensionProperty(name = Constants.SCOPE, value = "dm:configurations:create"),
+                            @ExtensionProperty(name = Constants.SCOPE, value = "dm:configurations:update"),
+                            @ExtensionProperty(name = "context", value = "/api/device-mgt/v1.0/notification-configuration")
+                    })
+            }
+    )
+    @ApiResponses(
+            value = {
+                    @ApiResponse(
+                            code = 200,
+                            message = "OK. \n Successfully updated the new notification configurations.",
+                            responseHeaders = {
+                                    @ResponseHeader(
+                                            name = "Content-Type",
+                                            description = "The content type of the body"
+                                    ),
+                                    @ResponseHeader(
+                                            name = "Last-Modified",
+                                            description = "Date and time the resource was last modified.\nUsed by caches, or in conditional requests."
+                                    )
+                            }
+                    ),
+                    @ApiResponse(
+                            code = 400,
+                            message = "Bad Request. \n Invalid configuration data received.",
+                            response = ErrorResponse.class
+                    ),
+                    @ApiResponse(
+                            code = 500,
+                            message = "Internal Server Error. \n Server error occurred while creating the configuration.",
+                            response = ErrorResponse.class
+                    )
+            }
+    )
+    Response updateNotificationConfig(
+            @ApiParam(
+                    name = "configurations",
+                    value = "A list of configuration objects representing the notification settings. This includes the type of notification, recipients, and other related metadata.",
+                    required = true
+            )
+            @RequestBody NotificationConfigDTO configuration
+    );
+
+    @GET
+    @ApiOperation(
+            produces = MediaType.APPLICATION_JSON,
+            httpMethod = HTTPConstants.HEADER_GET,
+            value = "View Notification Configurations",
+            notes = "Retrieve the list of notification configurations for the current tenant.",
+            tags = "Notification Configuration Management",
+            extensions = {
+                    @Extension(properties = {
+                            @ExtensionProperty(name = Constants.SCOPE, value = "dm:configurations:view"),
                             @ExtensionProperty(name = "context", value = "/api/device-mgt/v1.0/notification-configuration")
                     })
             }
@@ -137,16 +189,153 @@ public interface NotificationConfigurationService {
             value = {
                     @ApiResponse(
                             code = 200,
-                            message = "OK. \n Test response received.",
-                            response = String.class
+                            message = "OK. \n Successfully retrieved notification configurations.",
+                            response = NotificationConfigDTO.class,
+                            responseContainer = "List"
+                    ),
+                    @ApiResponse(
+                            code = 404,
+                            message = "Not Found. \n No configurations found for the tenant.",
+                            response = ErrorResponse.class
                     ),
                     @ApiResponse(
                             code = 500,
-                            message = "Internal Server Error. \n An error occurred while testing the endpoint.",
+                            message = "Internal Server Error. \n Server error occurred while retrieving configurations.",
                             response = ErrorResponse.class
                     )
             }
     )
-    @Produces(MediaType.TEXT_PLAIN)
-    Response testNotificationConfig();
+    @Produces(MediaType.APPLICATION_JSON)
+    Response getNotificationConfigurations();
+
+
+    @GET
+    @Path("/{id}")
+    @ApiOperation(
+            produces = MediaType.APPLICATION_JSON,
+            httpMethod = HTTPConstants.HEADER_GET,
+            value = "Get Notification Configuration by ID",
+            notes = "Retrieve a specific notification configuration by its unique identifier.",
+            tags = "Notification Configuration Management",
+            extensions = {
+                    @Extension(properties = {
+                            @ExtensionProperty(name = Constants.SCOPE, value = "dm:configurations:read"),
+                            @ExtensionProperty(name = "context", value = "/api/device-mgt/v1.0/notification-configuration/{id}")
+                    })
+            }
+    )
+    @ApiResponses(
+            value = {@ApiResponse(
+                    code = 200,
+                    message = "OK. \n Successfully retrieved the requested configuration.",
+                    response = NotificationConfigDTO.class
+            ), @ApiResponse(
+                    code = 404,
+                    message = "Not Found. \n The requested configuration does not exist.",
+                    response = ErrorResponse.class
+            ), @ApiResponse(
+                    code = 500,
+                    message = "Internal Server Error. \n Server error occurred while retrieving the configuration.",
+                    response = ErrorResponse.class
+            ), @ApiResponse(
+                    code = 200,
+                    message = "OK. \n Successfully deleted the new notification configuration.",
+                    responseHeaders = {
+                            @ResponseHeader(
+                                    name = "Content-Type",
+                                    description = "The content type of the body"
+                            ),
+                            @ResponseHeader(
+                                    name = "Last-Modified",
+                                    description = "Date and time the resource was last modified.\nUsed by caches, or in conditional requests."
+                            )
+                    }
+            ), @ApiResponse(
+                    code = 400,
+                    message = "Bad Request. \n Invalid configuration data received.",
+                    response = ErrorResponse.class
+            ), @ApiResponse(
+                    code = 500,
+                    message = "Internal Server Error. \n Server error occurred while creating the configuration.",
+                    response = ErrorResponse.class
+            )}
+    )
+
+     Response getNotificationConfig(
+            @ApiParam(
+                    name = "id",
+                    value = "Operation ID of the notification configuration to be retrieved.",
+                    required = true
+            )
+            @PathParam("id") String operationID
+    );
+
+    @DELETE
+    @Path("/{operationId}")
+    @ApiOperation(
+            produces = MediaType.APPLICATION_JSON,
+            httpMethod = HTTPConstants.HEADER_DELETE,
+            value = "delete Notification Configuration",
+            notes = "delete a notification configuration based on operation ID",
+            tags = "Notification Configuration Management",
+            extensions = {
+                    @Extension(properties = {
+                            @ExtensionProperty(name = Constants.SCOPE, value = "dm:configurations:delete"),
+                            @ExtensionProperty(name = "context", value = "/api/device-mgt/v1.0/notification-configuration")
+                    })
+            }
+    )
+    Response deleteNotificationConfig(
+            @ApiParam(
+                    name = "configurations",
+                    value = "The operation ID",
+                    required = true
+            )
+            @RequestBody String operationId
+    );
+
+
+    @DELETE
+    @ApiOperation(
+            produces = MediaType.APPLICATION_JSON,
+            httpMethod = HTTPConstants.HEADER_DELETE,
+            value = "Delete Notification Configuration(s)",
+            notes = "Deletes the entire notification configuration list of tenant",
+            tags = "Notification Configuration Management",
+            extensions = {
+                    @Extension(properties = {
+                            @ExtensionProperty(name = Constants.SCOPE, value = "dm:configurations:delete"),
+                            @ExtensionProperty(name = "context", value = "/api/device-mgt/v1.0/notification-configuration")
+                    })
+            }
+    )
+    @ApiResponses(
+            value = {
+                    @ApiResponse(
+                            code = 200,
+                            message = "OK. \n Successfully deleted the new notification configuration.",
+                            responseHeaders = {
+                                    @ResponseHeader(
+                                            name = "Content-Type",
+                                            description = "The content type of the body"
+                                    ),
+                                    @ResponseHeader(
+                                            name = "Last-Modified",
+                                            description = "Date and time the resource was last modified.\nUsed by caches, or in conditional requests."
+                                    )
+                            }
+                    ),
+                    @ApiResponse(
+                            code = 400,
+                            message = "Bad Request. \n Invalid configuration data received.",
+                            response = ErrorResponse.class
+                    ),
+                    @ApiResponse(
+                            code = 500,
+                            message = "Internal Server Error. \n Server error occurred while creating the configuration.",
+                            response = ErrorResponse.class
+                    )
+            }
+    )
+    Response deleteNotificationConfigurations();
 }

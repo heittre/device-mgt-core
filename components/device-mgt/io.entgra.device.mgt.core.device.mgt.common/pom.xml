@@ -133,8 +133,6 @@
             <version>2.2.0-b21</version>
             <scope>compile</scope>
         </dependency>
-
-
     </dependencies>
 
 </project>
