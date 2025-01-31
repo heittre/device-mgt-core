@@ -33,8 +33,7 @@ import io.entgra.device.mgt.core.device.mgt.core.dto.notification.mgt.Notificati
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.server.ResponseStatusException;
-
+import org.springframework.http.ResponseEntity;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -125,7 +124,7 @@ public class NotificationConfigServiceImpl {
             if (!isRemoved) {
                 String message = "No configuration found with operationId: " + operationId;
                 log.error(message);
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, message);
+                throw new MetadataManagementDAOException(message);
             }
 
 
