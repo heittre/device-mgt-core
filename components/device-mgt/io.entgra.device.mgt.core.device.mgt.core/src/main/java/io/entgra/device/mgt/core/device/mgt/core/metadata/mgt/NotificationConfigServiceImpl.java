@@ -96,15 +96,15 @@ public class NotificationConfigServiceImpl {
      * Deletes a specific notification configuration from the Metadata context for a given tenant.
      *
      * @param tenantId    The tenant ID associated with the notification configurations.
-     * @param operationId The unique identifier (operationId) of the notification configuration to be deleted.
-     * @throws MetadataManagementException If no configuration is found with the specified operationId, or
+     * @param operationCode The unique identifier (operationCode) of the notification configuration to be deleted.
+     * @throws MetadataManagementException If no configuration is found with the specified operationCode, or
      * if any error occurs during the database transaction or processing
      * This method retrieves the existing notification configuration context for the given tenant, removes the
-     * configuration matching the provided operationId, and updates the Metadata context with the remaining configurations.
+     * configuration matching the provided operationCode, and updates the Metadata context with the remaining configurations.
      */
 
 
-    public void deleteNotificationConfigContext(int tenantId, String operationId) throws MetadataManagementDAOException {
+    public void deleteNotificationConfigContext(int tenantId, String operationCode) throws MetadataManagementDAOException {
         try {
             Metadata existingMetadata = metadataDAO.getMetadata(tenantId, MetadataConstants.NOTIFICATION_CONFIG_META_KEY);
             if (existingMetadata == null) {
@@ -120,9 +120,9 @@ public class NotificationConfigServiceImpl {
             );
 
 
-            boolean isRemoved = configurations.removeIf(config -> config.getOperationId().equals(operationId));
+            boolean isRemoved = configurations.removeIf(config -> config.getOperationCode().equals(operationCode));
             if (!isRemoved) {
-                String message = "No configuration found with operationId: " + operationId;
+                String message = "No configuration found with operationCode: " + operationCode;
                 log.error(message);
                 throw new MetadataManagementDAOException(message);
             }
@@ -154,11 +154,11 @@ public class NotificationConfigServiceImpl {
      *
      * @param tenantId      The tenant ID associated with the notification configurations.
      * @param updatedConfig The notification configuration to be updated or added.
-     *                      If a configuration with the same operationId exists, it will be updated; otherwise, it will be added as a new entry.
+     *                      If a configuration with the same operationCode exists, it will be updated; otherwise, it will be added as a new entry.
      * @throws MetadataManagementException If any error occurs during the database transaction or processing.
      *
      * This method retrieves the existing notification configuration context for the given tenant. If a configuration with the same
-     * operationId as the provided configuration exists, it updates that configuration with the new details. Otherwise, it appends
+     * operationCode as the provided configuration exists, it updates that configuration with the new details. Otherwise, it appends
      * the provided configuration as a new entry. The updated configurations are then serialized and saved back to the Metadata context.
      */
 
@@ -183,7 +183,7 @@ public class NotificationConfigServiceImpl {
 
                     boolean isUpdated = false;
                     for (int i = 0; i < configurations.size(); i++) {
-                        if (configurations.get(i).getOperationId().equals(updatedConfig.getOperationId())) {
+                        if (configurations.get(i).getOperationCode().equals(updatedConfig.getOperationCode())) {
                             configurations.set(i, updatedConfig);
                             isUpdated = true;
                             break;
@@ -296,7 +296,7 @@ public class NotificationConfigServiceImpl {
             );
 
             for (NotificationConfigDTO config : configurations) {
-                if (config.getOperationId().equals(id)) {
+                if (config.getOperationCode().equals(id)) {
                     return config;
                 }
             }

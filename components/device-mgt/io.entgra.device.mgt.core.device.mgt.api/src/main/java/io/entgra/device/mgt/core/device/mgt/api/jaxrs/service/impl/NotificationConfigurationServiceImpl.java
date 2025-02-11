@@ -76,7 +76,7 @@ public class NotificationConfigurationServiceImpl implements NotificationConfigu
                 log.error(msg);
                 return Response.status(Response.Status.BAD_REQUEST).entity(msg).build();
             }
-            if (config.getOperationId() == null) {
+            if (config.getOperationCode() == null) {
                 String msg = "Operation ID is missing. Cannot update the notification configuration.";
                 log.error(msg);
                 return Response.status(Response.Status.BAD_REQUEST).entity(msg).build();
@@ -104,15 +104,15 @@ public class NotificationConfigurationServiceImpl implements NotificationConfigu
 
 
     @Override
-    public Response deleteNotificationConfig(String OperationId) {
+    public Response deleteNotificationConfig(String OperationCode) {
         try {
-            if (OperationId == null) {
+            if (OperationCode == null) {
                 String msg = "Received empty operation ID";
                 log.error(msg);
                 return Response.status(Response.Status.BAD_REQUEST).entity(msg).build();
             }
             int tenantId = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantId();
-            notificationConfigService.deleteNotificationConfigContext(tenantId, OperationId);
+            notificationConfigService.deleteNotificationConfigContext(tenantId, OperationCode);
 
             return Response.status(Response.Status.CREATED).entity("Notification configuration deleted successfully.").build();
         } catch (ProcessingException e) {
@@ -188,16 +188,16 @@ public class NotificationConfigurationServiceImpl implements NotificationConfigu
         }
     }
 
-    public Response getNotificationConfig(String operationId) {
+    public Response getNotificationConfig(String operationCode) {
 
         try {
             int tenantId = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantId();
 
             // Fetch the configuration by ID
-            NotificationConfigDTO config = notificationConfigService.getNotificationConfigById(tenantId, operationId);
+            NotificationConfigDTO config = notificationConfigService.getNotificationConfigById(tenantId, operationCode);
 
             if (config == null) {
-                String msg = "Notification configuration with ID '" + operationId + "' not found.";
+                String msg = "Notification configuration with ID '" + operationCode + "' not found.";
                 log.error(msg);
                 return Response.status(Response.Status.NOT_FOUND).entity(msg).build();
             }

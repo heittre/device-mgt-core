@@ -267,16 +267,16 @@ public interface NotificationConfigurationService {
                     value = "Operation ID of the notification configuration to be retrieved.",
                     required = true
             )
-            @PathParam("id") String operationID
+            @PathParam("id") String operationCode
     );
 
     @DELETE
-    @Path("/{operationId}")
+    @Path("/{operationCode}")
     @ApiOperation(
             produces = MediaType.APPLICATION_JSON,
             httpMethod = HTTPConstants.HEADER_DELETE,
             value = "delete Notification Configuration",
-            notes = "delete a notification configuration based on operation ID",
+            notes = "delete a notification configuration based on operation Code",
             tags = "Notification Configuration Management",
             extensions = {
                     @Extension(properties = {
@@ -291,7 +291,7 @@ public interface NotificationConfigurationService {
                     value = "The operation ID",
                     required = true
             )
-            @RequestBody String operationId
+            @RequestBody String operationCode
     );
 
 
