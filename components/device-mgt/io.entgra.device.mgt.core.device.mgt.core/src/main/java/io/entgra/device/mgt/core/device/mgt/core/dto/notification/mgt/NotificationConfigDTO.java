@@ -23,8 +23,8 @@ import java.util.List;
 
 public class NotificationConfigDTO {
 
-    @JsonProperty("operationId")
-    private String operationId;
+    @JsonProperty("operationCode")
+    private String operationCode;
 
     @JsonProperty("configType")
     private String configType;
@@ -68,12 +68,12 @@ public class NotificationConfigDTO {
         }
     }
 
-    public String getOperationId() {
-        return operationId;
+    public String getOperationCode() {
+        return operationCode;
     }
 
-    public void setOperationId(String operationId) {
-        this.operationId = operationId;
+    public void setOperationCode(String operationId) {
+        this.operationCode = operationCode;
     }
 
     public String getConfigType() {
@@ -103,7 +103,7 @@ public class NotificationConfigDTO {
     @Override
     public String toString() {
         return "NotificationConfigDTO{" +
-                "operationId='" + operationId + '\'' +
+                "operationCode='" + operationCode + '\'' +
                 ", configType='" + configType + '\'' +
                 ", recipients=" + recipients +
                 ", acknowledgable=" + acknowledgable +
