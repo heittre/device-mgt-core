@@ -23,7 +23,7 @@ import io.entgra.device.mgt.core.application.mgt.common.ErrorResponse;
 import io.entgra.device.mgt.core.device.mgt.api.jaxrs.util.Constants;
 import io.entgra.device.mgt.core.device.mgt.core.dto.notification.mgt.NotificationConfigDTO;
 import io.swagger.annotations.*;
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.apache.axis2.transport.http.HTTPConstants;
 
 import javax.ws.rs.*;
@@ -291,7 +291,7 @@ public interface NotificationConfigurationService {
                     value = "The operation ID",
                     required = true
             )
-            @RequestBody String operationCode
+            @PathParam("operationCode") String operationCode
     );
 
 
@@ -338,4 +338,6 @@ public interface NotificationConfigurationService {
             }
     )
     Response deleteNotificationConfigurations();
+
+
 }
