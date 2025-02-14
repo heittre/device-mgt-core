@@ -20,6 +20,7 @@ package io.entgra.device.mgt.core.device.mgt.api.jaxrs.service.impl;
 
 import io.entgra.device.mgt.core.device.mgt.api.jaxrs.service.api.NotificationConfigurationService;
 import io.entgra.device.mgt.core.device.mgt.core.dto.notification.mgt.NotificationConfigDTO;
+import io.entgra.device.mgt.core.device.mgt.core.metadata.mgt.MetadataManagementServiceImpl;
 import io.entgra.device.mgt.core.device.mgt.core.metadata.mgt.dao.MetadataDAO;
 import io.entgra.device.mgt.core.device.mgt.core.metadata.mgt.dao.MetadataManagementDAOException;
 import io.entgra.device.mgt.core.device.mgt.core.metadata.mgt.dao.MetadataManagementDAOFactory;
@@ -34,9 +35,7 @@ import java.util.NoSuchElementException;
 
 public class NotificationConfigurationServiceImpl implements NotificationConfigurationService {
     private static final Log log = LogFactory.getLog(NotificationConfigurationServiceImpl.class);
-
-    MetadataDAO metadataDAO = MetadataManagementDAOFactory.getMetadataDAO();
-    NotificationConfigServiceImpl notificationConfigService = new NotificationConfigServiceImpl(metadataDAO);
+    NotificationConfigServiceImpl notificationConfigService = new NotificationConfigServiceImpl();
 
     public Response createNotificationConfig(List<NotificationConfigDTO> configurations) {
         try {
@@ -53,8 +52,8 @@ public class NotificationConfigurationServiceImpl implements NotificationConfigu
                     return Response.status(Response.Status.BAD_REQUEST).entity(msg).build();
                 }
                 log.info("Processing configuration: " + config.toString());
-                int tenantId = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantId();
-                notificationConfigService.addNotificationConfigContext(tenantId, configurations);
+                notificationConfigService.addNotificationConfigContext(configurations);
+
             }
             return Response.status(Response.Status.CREATED).entity("Notification configuration(s) created successfully.").build();
         } catch (ProcessingException e) {
@@ -88,9 +87,8 @@ public class NotificationConfigurationServiceImpl implements NotificationConfigu
                     return Response.status(Response.Status.BAD_REQUEST).entity(msg).build();
                 }
                 log.info("Processing configuration: " + config.toString());
-                int tenantId = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantId();
-                notificationConfigService.updateNotificationConfigContext(tenantId, config);
-                return Response.status(Response.Status.CREATED).entity("Notification configuration(s) updated successfully.").build();
+                notificationConfigService.updateNotificationConfigContext(config);
+            return Response.status(Response.Status.OK).entity("Notification configuration(s) updated successfully.").build();
         } catch (ProcessingException e) {
             String msg = "Error occurred while processing the update request.";
             log.error(msg, e);
@@ -107,14 +105,12 @@ public class NotificationConfigurationServiceImpl implements NotificationConfigu
     public Response deleteNotificationConfig(String OperationCode) {
         try {
             if (OperationCode == null) {
-                String msg = "Received empty operation ID";
+                String msg = "Received empty operation Code";
                 log.error(msg);
                 return Response.status(Response.Status.BAD_REQUEST).entity(msg).build();
             }
-            int tenantId = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantId();
-            notificationConfigService.deleteNotificationConfigContext(tenantId, OperationCode);
-
-            return Response.status(Response.Status.CREATED).entity("Notification configuration deleted successfully.").build();
+            notificationConfigService.deleteNotificationConfigContext(OperationCode);
+            return Response.status(Response.Status.NO_CONTENT).entity("Notification configuration deleted successfully.").build();
         } catch (ProcessingException e) {
             String msg = "Error occurred while processing notification configuration(s).";
             log.error(msg, e);
@@ -130,14 +126,7 @@ public class NotificationConfigurationServiceImpl implements NotificationConfigu
     @Override
     public Response deleteNotificationConfigurations() {
         try {
-            int tenantId = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantId();
-            if (tenantId <= 0) {
-                String msg = "Invalid tenant ID: " + tenantId;
-                log.error(msg);
-                return Response.status(Response.Status.BAD_REQUEST).entity(msg).build();
-            }
-
-            notificationConfigService.deleteNotificationConfigurations(tenantId);
+            notificationConfigService.deleteNotificationConfigurations();
             return Response.status(Response.Status.NO_CONTENT).build();
 
         } catch (NoSuchElementException e) {
@@ -158,20 +147,12 @@ public class NotificationConfigurationServiceImpl implements NotificationConfigu
     @Override
     public Response getNotificationConfigurations() {
         try {
-            // Get tenant ID from the current Carbon Context
-            int tenantId = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantId();
-
-            if (tenantId <= 0) {
-                String msg = "Invalid tenant ID: " + tenantId;
-                log.error(msg);
-                return Response.status(Response.Status.BAD_REQUEST).entity(msg).build();
-            }
 
             // Retrieve configurations from the service layer
-            List<NotificationConfigDTO> configurations = notificationConfigService.getNotificationConfigurations(tenantId);
+            List<NotificationConfigDTO> configurations = notificationConfigService.getNotificationConfigurations();
 
             if (configurations.isEmpty()) {
-                String msg = "No notification configurations found for tenant ID: " + tenantId;
+                String msg = "No notification configurations found for tenant ID: ";
                 log.warn(msg);
                 return Response.status(Response.Status.NOT_FOUND).entity(msg).build();
             }
@@ -189,19 +170,14 @@ public class NotificationConfigurationServiceImpl implements NotificationConfigu
     }
 
     public Response getNotificationConfig(String operationCode) {
-
         try {
-            int tenantId = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantId();
-
-            // Fetch the configuration by ID
-            NotificationConfigDTO config = notificationConfigService.getNotificationConfigById(tenantId, operationCode);
+            NotificationConfigDTO config = notificationConfigService.getNotificationConfigByCode(operationCode);
 
             if (config == null) {
                 String msg = "Notification configuration with ID '" + operationCode + "' not found.";
                 log.error(msg);
                 return Response.status(Response.Status.NOT_FOUND).entity(msg).build();
             }
-
             return Response.status(Response.Status.OK).entity(config).build();
         } catch (Exception e) {
             String msg = "Unexpected error occurred while retrieving notification configuration.";
@@ -209,4 +185,7 @@ public class NotificationConfigurationServiceImpl implements NotificationConfigu
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(msg).build();
         }
     }
+
+
+
 }

@@ -19,6 +19,9 @@
 package io.entgra.device.mgt.core.device.mgt.core.dto.notification.mgt;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+
+import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 
 public class NotificationConfigDTO {
@@ -35,6 +38,10 @@ public class NotificationConfigDTO {
     @JsonProperty("acknowledgable")
     private boolean acknowledgable;
 
+    @JsonProperty("expiry date")
+    private LocalDateTime expiryDate;
+
+
     public static class Recipients {
 
         @JsonProperty("roles")
@@ -43,6 +50,7 @@ public class NotificationConfigDTO {
         @JsonProperty("users")
         private List<String> users;
 
+
         public List<String> getRoles() {
             return roles;
         }
@@ -50,7 +58,6 @@ public class NotificationConfigDTO {
         public void setRoles(List<String> roles) {
             this.roles = roles;
         }
-
         public List<String> getUsers() {
             return users;
         }
@@ -72,7 +79,7 @@ public class NotificationConfigDTO {
         return operationCode;
     }
 
-    public void setOperationCode(String operationId) {
+    public void setOperationCode(String operationCode) {
         this.operationCode = operationCode;
     }
 
@@ -80,9 +87,16 @@ public class NotificationConfigDTO {
         return configType;
     }
 
+    public LocalDateTime getExpiryDate() {return expiryDate;}
+
     public void setConfigType(String configType) {
         this.configType = configType;
     }
+
+    public void setExpiryDate(LocalDateTime expiryDate) {
+        this.expiryDate = expiryDate;
+    }
+
 
     public Recipients getRecipients() {
         return recipients;
