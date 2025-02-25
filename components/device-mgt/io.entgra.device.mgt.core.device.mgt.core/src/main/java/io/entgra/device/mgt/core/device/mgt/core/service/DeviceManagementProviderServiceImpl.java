@@ -34,6 +34,7 @@ import io.entgra.device.mgt.core.device.mgt.core.dao.TagDAO;
 import io.entgra.device.mgt.core.device.mgt.core.dto.DeviceDetailsDTO;
 import io.entgra.device.mgt.core.device.mgt.core.dto.OwnerWithDeviceDTO;
 import io.entgra.device.mgt.core.device.mgt.core.dto.OperationDTO;
+import io.entgra.device.mgt.core.device.mgt.core.operation.mgt.OperationMgtConstants;
 import io.entgra.device.mgt.core.device.mgt.core.operation.mgt.dao.OperationManagementDAOException;
 import io.entgra.device.mgt.core.device.mgt.core.operation.mgt.dao.OperationManagementDAOFactory;
 import io.entgra.device.mgt.core.device.mgt.extensions.logger.spi.EntgraLogger;
@@ -652,23 +653,23 @@ public class DeviceManagementProviderServiceImpl implements DeviceManagementProv
             return false;
         }
 
-        if (device.getEnrolmentInfo().getStatus().equals(EnrolmentInfo.Status.REMOVED)) {
+        if (device.getEnrolmentInfo().getStatus().equals(EnrolmentInfo.Status.DISENROLLMENT_REQUESTED)) {
             if (log.isDebugEnabled()) {
-                log.debug("Device has already dis-enrolled : " + deviceId.getId() + "'");
+                log.debug("Device has already requested disenrollment : " + deviceId.getId() + "'");
             }
             return true;
         }
 
         try {
-            device.getEnrolmentInfo().setDateOfLastUpdate(new Date().getTime());
-            device.getEnrolmentInfo().setStatus(EnrolmentInfo.Status.REMOVED);
+            //operation to revoke all policies before disenroll
+            this.sendPolicyRevokeOperation(deviceId);
+            device.getEnrolmentInfo().setStatus(EnrolmentInfo.Status.DISENROLLMENT_REQUESTED);
             DeviceManagementDAOFactory.beginTransaction();
             DeviceStatusManagementService deviceStatusManagementService = DeviceManagementDataHolder
                     .getInstance().getDeviceStatusManagementService();
             int updatedRows = enrollmentDAO.updateEnrollment(device.getEnrolmentInfo(), tenantId);
             addDeviceStatus(deviceStatusManagementService, tenantId, updatedRows, device.getEnrolmentInfo(), device.getType());
             DeviceManagementDAOFactory.commitTransaction();
-            this.removeDeviceFromCache(deviceId);
 
             //process to dis-enroll a device from traccar starts
             if (HttpReportingUtil.isTrackerEnabled()) {
@@ -680,7 +681,7 @@ public class DeviceManagementProviderServiceImpl implements DeviceManagementProv
                 }
             }
             //process to dis-enroll a device from traccar ends
-            log.info("Device disenrolled successfully",
+            log.info("Device disenrollment requested successfully",
                     deviceEnrolmentLogContextBuilder.setDeviceId(String.valueOf(device.getId()))
                             .setDeviceType(String.valueOf(device.getType()))
                             .setOwner(device.getEnrolmentInfo().getOwner())
@@ -706,6 +707,71 @@ public class DeviceManagementProviderServiceImpl implements DeviceManagementProv
             DeviceManagementDAOFactory.closeConnection();
         }
         return deviceManager.disenrollDevice(deviceId);
+    }
+
+    @Override
+    public boolean removeDevice(DeviceIdentifier deviceId) throws DeviceManagementException {
+        if (deviceId == null) {
+            String msg = "Required values are not set to remove device";
+            log.error(msg);
+            throw new DeviceManagementException(msg);
+        }
+        if (log.isDebugEnabled()) {
+            log.debug("Removing device: " + deviceId.getId() + " of type '" + deviceId.getType() + "'");
+        }
+        DeviceManager deviceManager = this.getDeviceManager(deviceId.getType());
+        if (deviceManager == null) {
+            if (log.isDebugEnabled()) {
+                log.debug("Device Manager associated with the device type '" + deviceId.getType() + "' is null. " +
+                        "Therefore, not attempting method 'removeDevice'");
+            }
+            return false;
+        }
+
+        int tenantId = this.getTenantId();
+        Device device = this.getDevice(deviceId, false);
+        if (device == null) {
+            if (log.isDebugEnabled()) {
+                log.debug("Device not found for id '" + deviceId.getId() + "'");
+            }
+            return false;
+        }
+
+        if (device.getEnrolmentInfo().getStatus().equals(EnrolmentInfo.Status.REMOVED)) {
+            if (log.isDebugEnabled()) {
+                log.debug("Device has already removed : " + deviceId.getId() + "'");
+            }
+            return true;
+        }
+
+        try {
+            device.getEnrolmentInfo().setDateOfLastUpdate(new Date().getTime());
+            device.getEnrolmentInfo().setStatus(EnrolmentInfo.Status.REMOVED);
+            DeviceManagementDAOFactory.beginTransaction();
+            DeviceStatusManagementService deviceStatusManagementService = DeviceManagementDataHolder
+                    .getInstance().getDeviceStatusManagementService();
+            int updatedRows = enrollmentDAO.updateEnrollment(device.getEnrolmentInfo(), tenantId);
+            addDeviceStatus(deviceStatusManagementService, tenantId, updatedRows, device.getEnrolmentInfo(), device.getType());
+            DeviceManagementDAOFactory.commitTransaction();
+            this.removeDeviceFromCache(deviceId);
+        } catch (DeviceManagementDAOException e) {
+            DeviceManagementDAOFactory.rollbackTransaction();
+            String msg = "Error occurred while removing '" + deviceId.getType() +
+                    "' device with the identifier '" + deviceId.getId() + "'";
+            log.error(msg, e);
+            throw new DeviceManagementException(msg, e);
+        } catch (TransactionManagementException e) {
+            String msg = "Error occurred while initiating transaction";
+            log.error(msg, e);
+            throw new DeviceManagementException(msg, e);
+        } catch (Exception e) {
+            String msg = "Error occurred while removing device: " + deviceId.getId();
+            log.error(msg, e);
+            throw new DeviceManagementException(msg, e);
+        } finally {
+            DeviceManagementDAOFactory.closeConnection();
+        }
+        return deviceManager.removeDevice(deviceId);
     }
 
     @Override
@@ -3916,7 +3982,7 @@ public class DeviceManagementProviderServiceImpl implements DeviceManagementProv
         DeviceCacheManagerImpl.getInstance().addDeviceToCache(deviceIdentifier, device, this.getTenantId());
     }
 
-    private void removeDeviceFromCache(DeviceIdentifier deviceIdentifier) {
+    public void removeDeviceFromCache(DeviceIdentifier deviceIdentifier) {
         DeviceCacheManagerImpl.getInstance().removeDeviceFromCache(deviceIdentifier, this.getTenantId());
     }
 
@@ -3928,7 +3994,7 @@ public class DeviceManagementProviderServiceImpl implements DeviceManagementProv
      * This method removes a given list of devices from the cache
      * @param deviceList list of DeviceCacheKey objects
      */
-    private void removeDevicesFromCache(List<DeviceCacheKey> deviceList) {
+    public void removeDevicesFromCache(List<DeviceCacheKey> deviceList) {
         DeviceCacheManagerImpl.getInstance().removeDevicesFromCache(deviceList);
     }
 
@@ -5059,6 +5125,39 @@ public class DeviceManagementProviderServiceImpl implements DeviceManagementProv
     }
 
     @Override
+    public Activity sendPolicyRevokeOperation(DeviceIdentifier deviceIdentifier) throws DeviceManagementException {
+        if (deviceIdentifier == null) {
+            String msg = "Required values are not set to send a policy revoke operation";
+            log.error(msg);
+            throw new DeviceManagementException(msg);
+        }
+        if (log.isDebugEnabled()) {
+            log.debug("Sending policy-revoke to device: " + deviceIdentifier.getId() + " of type '" + deviceIdentifier.getType() + "'");
+        }
+        try {
+            CommandOperation operation = new CommandOperation();
+            operation.setEnabled(true);
+            operation.setType(Operation.Type.COMMAND);
+            operation.setCode(OperationMgtConstants.OperationCodes.POLICY_REVOKE);
+
+            List<DeviceIdentifier> deviceIdentifiers = new ArrayList<>();
+            deviceIdentifiers.add(deviceIdentifier);
+            Activity activity;
+            activity = addOperation(deviceIdentifier.getType(), operation, deviceIdentifiers);
+
+            return activity;
+        } catch (OperationManagementException e) {
+            String msg = "Error occurred while sending operation";
+            log.error(msg, e);
+            throw new DeviceManagementException(msg, e);
+        } catch (InvalidDeviceException e) {
+            String msg = "Invalid Device exception occurred";
+            log.error(msg, e);
+            throw new DeviceManagementException(msg, e);
+        }
+    }
+
+    @Override
     public void saveApplicationIcon(String iconPath, String packageName, String version) throws DeviceManagementException{
         int tenantId = 0;
         try{
@@ -5152,13 +5251,13 @@ public class DeviceManagementProviderServiceImpl implements DeviceManagementProv
     }
 
     @Override
-    public List<Application> getInstalledApplicationsOnDevice(Device device, int offset, int limit) throws DeviceManagementException {
+    public List<Application> getInstalledApplicationsOnDevice(Device device, int offset, int limit, int isSystemApp) throws DeviceManagementException {
         List<Application> applications;
         try {
             DeviceManagementDAOFactory.openConnection();
             int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
             applications = applicationDAO.getInstalledApplicationListOnDevice(device.getId(),
-                    device.getEnrolmentInfo().getId(), offset, limit, tenantId);
+                    device.getEnrolmentInfo().getId(), offset, limit, tenantId, isSystemApp);
             if (applications == null) {
                 String msg = "Couldn't found applications for device identifier '" + device.getId() + "'";
                 log.error(msg);
@@ -5426,7 +5525,7 @@ public class DeviceManagementProviderServiceImpl implements DeviceManagementProv
 
     @Override
     public List<DeviceDetailsDTO> getDevicesByTenantId(int tenantId, int deviceTypeId, String deviceOwner, String deviceStatus)
-            throws DeviceManagementDAOException {
+            throws DeviceManagementException {
         List<DeviceDetailsDTO> devices;
         List<String> allowingDeviceStatuses = new ArrayList<>();
         allowingDeviceStatuses.add(EnrolmentInfo.Status.ACTIVE.toString());
@@ -5435,15 +5534,14 @@ public class DeviceManagementProviderServiceImpl implements DeviceManagementProv
         try {
             DeviceManagementDAOFactory.openConnection();
             devices = enrollmentDAO.getDevicesByTenantId(tenantId, allowingDeviceStatuses, deviceTypeId, deviceOwner, deviceStatus);
-            if (devices == null || devices.isEmpty()) {
-                String msg = "No devices found for tenant ID: " + tenantId;
-                log.error(msg);
-                throw new DeviceManagementDAOException(msg);
-            }
-        } catch (DeviceManagementDAOException | SQLException e) {
-            String msg = "Error occurred while retrieving devices for tenant ID: " + tenantId;
+        } catch (DeviceManagementDAOException e) {
+            String msg = "Failed to retrieve devices for tenant ID: " + tenantId + ", deviceTypeId: " + deviceTypeId;
             log.error(msg, e);
-            throw new DeviceManagementDAOException(msg, e);
+            throw new DeviceManagementException(msg, e);
+        } catch (SQLException e) {
+            String msg = "SQL error occurred while accessing devices for tenant ID: " + tenantId;
+            log.error(msg, e);
+            throw new DeviceManagementException(msg, e);
         } finally {
             DeviceManagementDAOFactory.closeConnection();
         }
