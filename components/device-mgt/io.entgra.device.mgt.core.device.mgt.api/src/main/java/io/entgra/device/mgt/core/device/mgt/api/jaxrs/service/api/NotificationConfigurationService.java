@@ -20,6 +20,10 @@ package io.entgra.device.mgt.core.device.mgt.api.jaxrs.service.api;
 
 import io.entgra.device.mgt.core.apimgt.annotations.Scopes;
 import io.entgra.device.mgt.core.application.mgt.common.ErrorResponse;
+import io.entgra.device.mgt.core.device.mgt.api.jaxrs.beans.NotificationConfig;
+import io.entgra.device.mgt.core.device.mgt.api.jaxrs.beans.NotificationConfigurationList;
+import io.entgra.device.mgt.core.device.mgt.common.exceptions.NotificationConfigurationServiceException;
+import io.entgra.device.mgt.core.device.mgt.core.dto.notification.mgt.NotificationConfigWrapper;
 import io.entgra.device.mgt.core.device.mgt.api.jaxrs.util.Constants;
 import io.entgra.device.mgt.core.device.mgt.core.dto.notification.mgt.NotificationConfigDTO;
 import io.swagger.annotations.*;
@@ -75,7 +79,7 @@ public interface NotificationConfigurationService {
             tags = "Notification Configuration Management",
             extensions = {
                     @Extension(properties = {
-                            @ExtensionProperty(name = Constants.SCOPE, value = "dm:configurations:create"),
+                            @ExtensionProperty(name = Constants.SCOPE, value = "dm:notificationConfig:create"),
                             @ExtensionProperty(name = "context", value = "/api/device-mgt/v1.0/notification-configuration")
                     })
             }
@@ -114,8 +118,8 @@ public interface NotificationConfigurationService {
                     value = "A list of configuration objects representing the notification settings. This includes the type of notification, recipients, and other related metadata.",
                     required = true
             )
-            @RequestBody List<NotificationConfigDTO> configurations
-    );
+            @RequestBody NotificationConfigurationList configurations
+    ) throws NotificationConfigurationServiceException;
 
 
 
@@ -128,7 +132,7 @@ public interface NotificationConfigurationService {
             tags = "Notification Configuration Management",
             extensions = {
                     @Extension(properties = {
-                            @ExtensionProperty(name = Constants.SCOPE, value = "dm:configurations:update"),
+                            @ExtensionProperty(name = Constants.SCOPE, value = "dm:notificationConfig:update"),
                             @ExtensionProperty(name = "context", value = "/api/device-mgt/v1.0/notification-configuration")
                     })
             }
@@ -138,6 +142,7 @@ public interface NotificationConfigurationService {
                     @ApiResponse(
                             code = 200,
                             message = "OK. \n Successfully updated the new notification configurations.",
+                            response = NotificationConfigurationList.class,
                             responseHeaders = {
                                     @ResponseHeader(
                                             name = "Content-Type",
@@ -167,8 +172,8 @@ public interface NotificationConfigurationService {
                     value = "A list of configuration objects representing the notification settings. This includes the type of notification, recipients, and other related metadata.",
                     required = true
             )
-            @RequestBody NotificationConfigDTO configuration
-    );
+            @RequestBody NotificationConfig configuration
+    ) throws NotificationConfigurationServiceException;
 
     @GET
     @ApiOperation(
@@ -179,7 +184,7 @@ public interface NotificationConfigurationService {
             tags = "Notification Configuration Management",
             extensions = {
                     @Extension(properties = {
-                            @ExtensionProperty(name = Constants.SCOPE, value = "dm:configurations:view"),
+                            @ExtensionProperty(name = Constants.SCOPE, value = "dm:notificationConfig:view"),
                             @ExtensionProperty(name = "context", value = "/api/device-mgt/v1.0/notification-configuration")
                     })
             }
@@ -190,7 +195,7 @@ public interface NotificationConfigurationService {
                     @ApiResponse(
                             code = 200,
                             message = "OK. \n Successfully retrieved notification configurations.",
-                            response = NotificationConfigDTO.class,
+                            response = NotificationConfig.class,
                             responseContainer = "List"
                     ),
                     @ApiResponse(
@@ -206,7 +211,7 @@ public interface NotificationConfigurationService {
             }
     )
     @Produces(MediaType.APPLICATION_JSON)
-    Response getNotificationConfigurations();
+    Response getNotificationConfigurations() throws NotificationConfigurationServiceException;
 
 
     @GET
@@ -228,7 +233,7 @@ public interface NotificationConfigurationService {
             value = {@ApiResponse(
                     code = 200,
                     message = "OK. \n Successfully retrieved the requested configuration.",
-                    response = NotificationConfigDTO.class
+                    response = NotificationConfig.class
             ), @ApiResponse(
                     code = 404,
                     message = "Not Found. \n The requested configuration does not exist.",
@@ -237,26 +242,9 @@ public interface NotificationConfigurationService {
                     code = 500,
                     message = "Internal Server Error. \n Server error occurred while retrieving the configuration.",
                     response = ErrorResponse.class
-            ), @ApiResponse(
-                    code = 200,
-                    message = "OK. \n Successfully deleted the new notification configuration.",
-                    responseHeaders = {
-                            @ResponseHeader(
-                                    name = "Content-Type",
-                                    description = "The content type of the body"
-                            ),
-                            @ResponseHeader(
-                                    name = "Last-Modified",
-                                    description = "Date and time the resource was last modified.\nUsed by caches, or in conditional requests."
-                            )
-                    }
-            ), @ApiResponse(
+            ),  @ApiResponse(
                     code = 400,
                     message = "Bad Request. \n Invalid configuration data received.",
-                    response = ErrorResponse.class
-            ), @ApiResponse(
-                    code = 500,
-                    message = "Internal Server Error. \n Server error occurred while creating the configuration.",
                     response = ErrorResponse.class
             )}
     )
@@ -267,20 +255,20 @@ public interface NotificationConfigurationService {
                     value = "Operation ID of the notification configuration to be retrieved.",
                     required = true
             )
-            @PathParam("id") String operationCode
-    );
+            @PathParam("id") String configId
+    ) throws NotificationConfigurationServiceException;
 
     @DELETE
-    @Path("/{operationCode}")
+    @Path("/{configId}")
     @ApiOperation(
             produces = MediaType.APPLICATION_JSON,
             httpMethod = HTTPConstants.HEADER_DELETE,
             value = "delete Notification Configuration",
-            notes = "delete a notification configuration based on operation Code",
+            notes = "delete a notification configuration based on configuration ID ",
             tags = "Notification Configuration Management",
             extensions = {
                     @Extension(properties = {
-                            @ExtensionProperty(name = Constants.SCOPE, value = "dm:configurations:delete"),
+                            @ExtensionProperty(name = Constants.SCOPE, value = "dm:notificationConfig:delete"),
                             @ExtensionProperty(name = "context", value = "/api/device-mgt/v1.0/notification-configuration")
                     })
             }
@@ -288,11 +276,11 @@ public interface NotificationConfigurationService {
     Response deleteNotificationConfig(
             @ApiParam(
                     name = "configurations",
-                    value = "The operation ID",
+                    value = "The configuration ID",
                     required = true
             )
-            @PathParam("operationCode") String operationCode
-    );
+            @PathParam("configId") String configId
+    ) throws NotificationConfigurationServiceException;
 
 
     @DELETE
@@ -337,7 +325,7 @@ public interface NotificationConfigurationService {
                     )
             }
     )
-    Response deleteNotificationConfigurations();
+    Response deleteNotificationConfigurations() throws NotificationConfigurationServiceException;
 
 
 }
