@@ -20,6 +20,7 @@ package io.entgra.device.mgt.core.device.mgt.core.service;
 
 import io.entgra.device.mgt.core.device.mgt.common.app.mgt.Application;
 import io.entgra.device.mgt.core.device.mgt.common.exceptions.ConflictException;
+import io.entgra.device.mgt.core.device.mgt.core.cache.DeviceCacheKey;
 import io.entgra.device.mgt.core.device.mgt.core.dto.DeviceDetailsDTO;
 import io.entgra.device.mgt.core.device.mgt.core.dto.OperationDTO;
 import io.entgra.device.mgt.core.device.mgt.core.dto.OwnerWithDeviceDTO;
@@ -673,6 +674,8 @@ public interface DeviceManagementProviderService {
 
     boolean disenrollDevice(DeviceIdentifier deviceId) throws DeviceManagementException;
 
+    boolean removeDevice(DeviceIdentifier deviceId) throws DeviceManagementException;
+
     boolean deleteDevices(List<String> deviceIdentifiers) throws DeviceManagementException, InvalidDeviceException;
 
     boolean isEnrolled(DeviceIdentifier deviceId) throws DeviceManagementException;
@@ -778,6 +781,10 @@ public interface DeviceManagementProviderService {
     boolean isDeviceMonitoringEnabled(String deviceType);
 
     PolicyMonitoringManager getPolicyMonitoringManager(String deviceType);
+
+    void removeDeviceFromCache(DeviceIdentifier deviceIdentifier);
+
+    void removeDevicesFromCache(List<DeviceCacheKey> deviceList);
 
     /**
      * Change device status.
@@ -1022,6 +1029,14 @@ public interface DeviceManagementProviderService {
     Boolean sendDeviceNameChangedNotification(Device device) throws DeviceManagementException;
 
     /**
+     * This method creates an activity to send a policy revoke operation.
+     * @param deviceIdentifier device identifier.
+     * @return {@link Activity}
+     * @throws DeviceManagementException if any service level or DAO level error occurs.
+     */
+    Activity sendPolicyRevokeOperation(DeviceIdentifier deviceIdentifier) throws DeviceManagementException;
+
+    /**
      * This method is for saving application icon info
      * @param iconPath Icon path of the application
      * @param packageName Package name of the application
@@ -1055,7 +1070,7 @@ public interface DeviceManagementProviderService {
      * @return list of applications {@link Application}
      * @throws DeviceManagementException if any service level or DAO level error occurs
      */
-    List<Application> getInstalledApplicationsOnDevice(Device device, int offset, int limit)
+    List<Application> getInstalledApplicationsOnDevice(Device device, int offset, int limit, int isSystemApp)
             throws DeviceManagementException;
     /**
      * This method is for getting the installed application list of a device
@@ -1112,7 +1127,7 @@ public interface DeviceManagementProviderService {
      * @throws DeviceManagementException if an error occurs while fetching owner details.
      */
     List<DeviceDetailsDTO> getDevicesByTenantId(int tenantId, int deviceTypeId, String deviceOwner, String deviceStatus)
-            throws DeviceManagementDAOException;
+            throws DeviceManagementException;
 
     /**
      * Get operation details by operation code.
