@@ -23,9 +23,7 @@ import io.entgra.device.mgt.core.application.mgt.common.ErrorResponse;
 import io.entgra.device.mgt.core.device.mgt.api.jaxrs.beans.NotificationConfig;
 import io.entgra.device.mgt.core.device.mgt.api.jaxrs.beans.NotificationConfigurationList;
 import io.entgra.device.mgt.core.device.mgt.common.exceptions.NotificationConfigurationServiceException;
-import io.entgra.device.mgt.core.device.mgt.core.dto.notification.mgt.NotificationConfigWrapper;
 import io.entgra.device.mgt.core.device.mgt.api.jaxrs.util.Constants;
-import io.entgra.device.mgt.core.device.mgt.core.dto.notification.mgt.NotificationConfigDTO;
 import io.swagger.annotations.*;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.apache.axis2.transport.http.HTTPConstants;
@@ -33,7 +31,6 @@ import org.apache.axis2.transport.http.HTTPConstants;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.List;
 
 
 @SwaggerDefinition(

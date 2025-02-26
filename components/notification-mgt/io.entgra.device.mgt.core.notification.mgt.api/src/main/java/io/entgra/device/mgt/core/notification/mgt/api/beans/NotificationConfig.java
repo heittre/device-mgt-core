@@ -1,4 +1,4 @@
-package io.entgra.device.mgt.core.device.mgt.api.jaxrs.beans;
+package io.entgra.device.mgt.core.notification.mgt.api.beans;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModel;
@@ -6,7 +6,6 @@ import io.swagger.annotations.ApiModelProperty;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.List;
 
 @ApiModel(value = "NotificationConfig", description = "Notification Configurations")
 public class NotificationConfig {

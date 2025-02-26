@@ -1,4 +1,4 @@
-package io.entgra.device.mgt.core.device.mgt.api.jaxrs.beans;
+package io.entgra.device.mgt.core.notification.mgt.api.beans;
 
 import java.util.List;
 

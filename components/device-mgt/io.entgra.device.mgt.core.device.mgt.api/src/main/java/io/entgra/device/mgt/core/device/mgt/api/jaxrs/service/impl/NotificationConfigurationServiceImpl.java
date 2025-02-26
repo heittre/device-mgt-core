@@ -17,21 +17,17 @@
  */
 
 package io.entgra.device.mgt.core.device.mgt.api.jaxrs.service.impl;
-import io.entgra.device.mgt.core.device.mgt.api.jaxrs.beans.ErrorResponse;
 import io.entgra.device.mgt.core.device.mgt.api.jaxrs.beans.NotificationConfigurationList;
 import io.entgra.device.mgt.core.device.mgt.api.jaxrs.beans.NotificationConfig;
 import io.entgra.device.mgt.core.device.mgt.api.jaxrs.service.api.NotificationConfigurationService;
 import io.entgra.device.mgt.core.device.mgt.common.exceptions.MetadataManagementException;
 import io.entgra.device.mgt.core.device.mgt.common.exceptions.NotificationConfigurationServiceException;
 import io.entgra.device.mgt.core.device.mgt.core.metadata.mgt.NotificationConfigurationServiceDAOImpl;
-import io.entgra.device.mgt.core.device.mgt.core.metadata.mgt.dao.MetadataManagementDAOException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import javax.ws.rs.GET;
-import javax.ws.rs.ProcessingException;
 import javax.ws.rs.core.Response;
-import java.util.NoSuchElementException;
 
 public class NotificationConfigurationServiceImpl implements NotificationConfigurationService {
     private static final Log log = LogFactory.getLog(NotificationConfigurationServiceImpl.class);
