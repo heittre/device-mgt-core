@@ -2,6 +2,7 @@ package io.entgra.device.mgt.core.device.mgt.api.jaxrs.beans;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.time.Duration;
 import java.util.List;
 
 public class NotificationConfigBatchNotifications {
@@ -12,7 +13,7 @@ public class NotificationConfigBatchNotifications {
         private List<String> groupingCriteria = List.of("operationCode", "deviceGroup");
 
         @JsonProperty("sendBatchNotification")
-        private String sendBatchNotification = "after 1 hours";
+        private Duration sendBatchNotification;
 
         @JsonProperty("includeDeviceListInBatch")
         private boolean includeDeviceListInBatch = true;

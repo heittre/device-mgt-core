@@ -2,6 +2,7 @@ package io.entgra.device.mgt.core.device.mgt.api.jaxrs.beans;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 
 public class NotificationConfigurationSettings {
@@ -12,7 +13,7 @@ public class NotificationConfigurationSettings {
         private NotificationConfigBatchNotifications batchNotifications;
 
         @JsonProperty("pendingNotifyAgainIn")
-        private String pendingNotifyAgainIn = "01 weeks";
+        private Duration pendingNotifyAgainIn;
 
 }
 
