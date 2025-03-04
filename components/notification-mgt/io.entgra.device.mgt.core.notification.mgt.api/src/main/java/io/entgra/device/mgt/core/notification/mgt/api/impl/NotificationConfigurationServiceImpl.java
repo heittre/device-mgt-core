@@ -19,6 +19,7 @@
 package io.entgra.device.mgt.core.notification.mgt.api.impl;
 
 import io.entgra.device.mgt.core.notification.mgt.api.util.NotificationConfigurationApiUtil;
+import io.entgra.device.mgt.core.notification.mgt.api.util.NotificationManagementApiUtil;
 import io.entgra.device.mgt.core.notification.mgt.common.beans.NotificationConfig;
 import io.entgra.device.mgt.core.notification.mgt.common.beans.NotificationConfigurationList;
 
@@ -44,13 +45,6 @@ public class NotificationConfigurationServiceImpl implements NotificationConfigu
     private static final Log log = LogFactory.getLog(NotificationConfigurationServiceImpl.class);
 
 
-    private static NotificationConfigServiceImpl notificationConfigService;
-    public NotificationConfigurationServiceImpl() {
-         notificationConfigService = new NotificationConfigServiceImpl();
-    }
-
-    NotificationConfigService notificationConfigurationService = NotificationConfigurationApiUtil.getNotificationConfigurationService();
-
 
     private boolean configurationsAreEmpty(NotificationConfigurationList configurations) {
         return configurations == null;
@@ -71,6 +65,9 @@ public class NotificationConfigurationServiceImpl implements NotificationConfigu
     public Response createNotificationConfig(NotificationConfigurationList configurations)  {
         try {
             NotificationConfigurationList validConfigurations = new NotificationConfigurationList();
+            NotificationConfigService notificationConfigService =
+                    NotificationConfigurationApiUtil.getNotificationConfigurationService();
+
             for (NotificationConfig config : configurations.getList()) {
                 if (!configurationIsValid(config)) {
                     log.warn("Skipping invalid configuration: " + config);
@@ -100,7 +97,11 @@ public class NotificationConfigurationServiceImpl implements NotificationConfigu
     @Override
     public Response updateNotificationConfig(NotificationConfig config) {
         try {
+            NotificationConfigService notificationConfigService =
+                    NotificationConfigurationApiUtil.getNotificationConfigurationService();
+
             if (configurationIsEmpty(config)) {
+
                 String msg = "Configuration object cannot be null.";
                 log.error(msg);
                 return Response.status(Response.Status.BAD_REQUEST).entity(msg).build();
@@ -133,6 +134,9 @@ public class NotificationConfigurationServiceImpl implements NotificationConfigu
     @Override
     public Response deleteNotificationConfig(String configId) {
         try {
+            NotificationConfigService notificationConfigService =
+                    NotificationConfigurationApiUtil.getNotificationConfigurationService();
+
             if (configId == null) {
                 String msg = "Received empty Configuration ID";
                 log.error(msg);
@@ -151,7 +155,10 @@ public class NotificationConfigurationServiceImpl implements NotificationConfigu
     @Override
     public Response deleteNotificationConfigurations()  {
         try {
-           notificationConfigService.deleteNotificationConfigurations();
+            NotificationConfigService notificationConfigService =
+                    NotificationConfigurationApiUtil.getNotificationConfigurationService();
+
+            notificationConfigService.deleteNotificationConfigurations();
             return Response.status(Response.Status.NO_CONTENT).build();
 
         } catch (NotificationConfigurationServiceException e) {
@@ -164,6 +171,8 @@ public class NotificationConfigurationServiceImpl implements NotificationConfigu
     @Override
     public Response getNotificationConfigurations(){
         try {
+            NotificationConfigService notificationConfigService =
+                    NotificationConfigurationApiUtil.getNotificationConfigurationService();
 
             // Retrieve configurations from the service layer
             NotificationConfigurationList configurations = notificationConfigService.getNotificationConfigurations();
@@ -186,6 +195,9 @@ public class NotificationConfigurationServiceImpl implements NotificationConfigu
 
     public Response getNotificationConfig(String configID)  {
         try {
+            NotificationConfigService notificationConfigService =
+                    NotificationConfigurationApiUtil.getNotificationConfigurationService();
+
             NotificationConfig config = notificationConfigService.getNotificationConfigByID(configID);
             if (config == null) {
                 String msg = "Notification configuration with ID '" + configID + "' not found.";

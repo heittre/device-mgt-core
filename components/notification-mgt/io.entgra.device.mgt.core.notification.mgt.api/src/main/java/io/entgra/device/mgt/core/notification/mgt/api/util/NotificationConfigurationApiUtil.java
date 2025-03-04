@@ -33,7 +33,7 @@ public class NotificationConfigurationApiUtil {
                     notificationConfigService = (NotificationConfigService)
                             ctx.getOSGiService(NotificationConfigService.class, null);
                     if (notificationConfigService == null) {
-                        throw new IllegalStateException("Notification configuration Service is not initialize");
+                        throw new IllegalStateException("Notification configuration Service is not initialized");
                     }
                 }
             }

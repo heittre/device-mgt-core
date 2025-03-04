@@ -11,6 +11,8 @@ public interface NotificationConfigService {
      * @return {@link List < Notification >}
      * @throws NotificationConfigurationServiceException Throws when error occurred while retrieving notifications.
      */
+        void addNotificationConfigContext(NotificationConfigurationList configurations) throws NotificationConfigurationServiceException;
+
 
         void deleteNotificationConfigContext(String configID) throws NotificationConfigurationServiceException;
 

@@ -47,7 +47,7 @@ public class NotificationConfigServiceImpl implements NotificationConfigService 
 
 
 
-    MetadataManagementService metadataManagementService = DeviceManagementDataHolder.getInstance().getMetadataManagementService();
+    MetadataManagementService metadataManagementService = NotificationManagementDataHolder.getInstance().getMetaDataManagementService();
 
 
     public void addNotificationConfigContext(NotificationConfigurationList configurations) throws NotificationConfigurationServiceException {
