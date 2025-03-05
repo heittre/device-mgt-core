@@ -40,7 +40,7 @@ import javax.ws.rs.core.Response;
                 }
         ),
         tags = {
-                @Tag(name = "notification_management")
+                @Tag(name = "device_management", description = "")
         }
 )
 @Api(value = "Notification Configuration Management")
