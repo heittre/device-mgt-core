@@ -18,16 +18,19 @@
 
 package io.entgra.device.mgt.core.notification.mgt.api.service;
 import io.entgra.device.mgt.core.apimgt.annotations.Scopes;
+import io.entgra.device.mgt.core.apimgt.annotations.Scope;
 import io.entgra.device.mgt.core.notification.mgt.api.beans.ErrorResponse;
 import io.entgra.device.mgt.core.notification.mgt.common.beans.NotificationConfig;
 import io.entgra.device.mgt.core.notification.mgt.common.beans.NotificationConfigurationList;
 import io.entgra.device.mgt.core.notification.mgt.common.exception.NotificationConfigurationServiceException;
 import io.swagger.annotations.*;
-import org.apache.axis2.transport.http.HTTPConstants;
+
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-
+/**
+ * Notification configurations related REST-API.
+ */
 @SwaggerDefinition(
         info = @Info(
                 version = "1.0.0",
@@ -43,16 +46,23 @@ import javax.ws.rs.core.Response;
                 @Tag(name = "device_management", description = "")
         }
 )
-@Api(value = "Notification Configuration Management")
+@Api(value = "Notification Configuration Management",description = "Notification Configuration Management related operations can be found here.")
 @Scopes(
         scopes = {
-                @io.entgra.device.mgt.core.apimgt.annotations.Scope(
+                @Scope(
                         name = "Create Notification Configuration",
                         description = "Create new notification configurations",
                         key = "dm:notificationConfig:create",
                         roles = {"Internal/devicemgt-user"},
-                        permissions = {"/device-mgt/notification-configuration/create"}
+                        permissions = {"/device-mgt/notifications/view"} //check
                 ),
+                @Scope(
+                        name = "Update Notification Configuration",
+                        description = "Update new notification configurations",
+                        key = "dm:notificationConfig:update",
+                        roles = {"Internal/devicemgt-user"},
+                        permissions = {"/device-mgt/notifications/update"}
+                )
         }
 )
 
@@ -60,11 +70,63 @@ import javax.ws.rs.core.Response;
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public interface NotificationConfigurationService {
+    String SCOPE = "scope";
+    @GET
+    @ApiOperation(
+            produces = MediaType.APPLICATION_JSON,
+            httpMethod = "GET",
+            value = "View Notification Configurations",
+            notes = "Retrieve the list of notification configurations for the current tenant.",
+            tags = "Notification Configuration Management",
+            extensions = {
+                    @Extension(properties = {
+                            @ExtensionProperty(name = SCOPE, value = "dm:notificationConfig:view"),
+                            @ExtensionProperty(name = "context", value = "/api/notification-mgt/v1.0/notification-configuration") //check
+                    })
+            }
+    )
+    @ApiResponses(
+            value = {
+                    @ApiResponse(
+                            code = 200,
+                            message = "OK. \n Successfully retrieved notification configurations.",
+                            response = NotificationConfig.class, //check
+                            responseContainer = "List"
+                    ),
+                    @ApiResponse(
+                            code = 404,
+                            message = "Not Found. \n No configurations found for the tenant.",
+                            response = ErrorResponse.class
+                    ),
+                    @ApiResponse(
+                            code = 500,
+                            message = "Internal Server Error. \n Server error occurred while retrieving configurations.",
+                            response = ErrorResponse.class
+                    )
+            }
+    )
+    Response getNotificationConfigurations(
+            @ApiParam(
+                    name = "offset",
+                    value = "The starting pagination index for the complete list of qualified items.",
+                    required = false,
+                    defaultValue = "0")
+            @QueryParam("offset")
+            int offset,
+            @ApiParam(
+                    name = "limit",
+                    value = "Provide how many notification configurations you require from the starting pagination index/offset.",
+                    required = false,
+                    defaultValue = "5")
+            @QueryParam("limit")
+            int limit);
+
+
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @ApiOperation(
             produces = MediaType.APPLICATION_JSON,
-            httpMethod = HTTPConstants.HEADER_POST,
+            httpMethod = "POST",
             value = "Create Notification Configuration",
             notes = "Creates new notification configurations based on the input received from the UI.",
             tags = "Notification Configuration Management",
@@ -116,7 +178,7 @@ public interface NotificationConfigurationService {
     @Consumes(MediaType.APPLICATION_JSON)
     @ApiOperation(
             produces = MediaType.APPLICATION_JSON,
-            httpMethod = HTTPConstants.HEADER_PUT,
+            httpMethod = "PUT",
             value = "Update Notification Configuration",
             notes = "Update notification configurations based on the input received from the UI.",
             tags = "Notification Configuration Management",
@@ -169,7 +231,7 @@ public interface NotificationConfigurationService {
     @Path("/{id}")
     @ApiOperation(
             produces = MediaType.APPLICATION_JSON,
-            httpMethod = HTTPConstants.HEADER_GET,
+            httpMethod = "GET",
             value = "Get Notification Configuration by ID",
             notes = "Retrieve a specific notification configuration by its unique identifier.",
             tags = "Notification Configuration Management",
@@ -212,7 +274,7 @@ public interface NotificationConfigurationService {
     @Path("/{configId}")
     @ApiOperation(
             produces = MediaType.APPLICATION_JSON,
-            httpMethod = HTTPConstants.HEADER_DELETE,
+            httpMethod = "DELETE",
             value = "delete Notification Configuration",
             notes = "delete a notification configuration based on configuration ID ",
             tags = "Notification Configuration Management",
@@ -234,7 +296,7 @@ public interface NotificationConfigurationService {
     @DELETE
     @ApiOperation(
             produces = MediaType.APPLICATION_JSON,
-            httpMethod = HTTPConstants.HEADER_DELETE,
+            httpMethod = "DELETE",
             value = "Delete Notification Configuration(s)",
             notes = "Deletes the entire notification configuration list of tenant",
             tags = "Notification Configuration Management",

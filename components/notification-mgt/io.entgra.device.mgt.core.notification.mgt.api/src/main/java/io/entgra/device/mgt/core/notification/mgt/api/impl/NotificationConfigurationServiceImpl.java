@@ -31,10 +31,7 @@ import io.entgra.device.mgt.core.notification.mgt.core.impl.NotificationConfigSe
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -56,6 +53,29 @@ public class NotificationConfigurationServiceImpl implements NotificationConfigu
     }
     private boolean configIDIsNUll(NotificationConfig config) {
         return config.getId() == null;
+    }
+
+    @GET
+    @Override
+    public Response getNotificationConfigurations(
+        @QueryParam("offset") int offset, @QueryParam("limit") int limit) {
+
+            NotificationConfigService notificationConfigService =
+                    NotificationConfigurationApiUtil.getNotificationConfigurationService();
+            try {
+                // Retrieve configurations from the service layer
+                NotificationConfigurationList configurations = notificationConfigService.getNotificationConfigurations();
+                if (configurations.isEmpty()) {
+                    String msg = "No notification configurations found for tenant ID: ";
+                    log.warn(msg);
+                    return Response.status(Response.Status.NOT_FOUND).entity(msg).build();
+                }
+                return Response.status(Response.Status.OK).entity(configurations).build();
+            } catch (NotificationConfigurationServiceException e) {
+                String msg = "Unexpected error occurred while retrieving notification configurations.";
+                log.error(msg, e);
+                return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(msg).build();
+            }
     }
 
     public Response createNotificationConfig(NotificationConfigurationList configurations)  {

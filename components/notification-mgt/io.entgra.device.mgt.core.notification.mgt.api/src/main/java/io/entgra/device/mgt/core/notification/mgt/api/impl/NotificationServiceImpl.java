@@ -64,25 +64,5 @@ public class NotificationServiceImpl implements NotificationService {
             return Response.status(HttpStatus.SC_INTERNAL_SERVER_ERROR).entity(msg).build();
         }
     }
-    @GET
-    @Override
-    public Response getNotificationConfigurations(){
-        try {
-            NotificationConfigService notificationConfigService =
-                    NotificationConfigurationApiUtil.getNotificationConfigurationService();
-            // Retrieve configurations from the service layer
-            NotificationConfigurationList configurations = notificationConfigService.getNotificationConfigurations();
-            if (configurations.isEmpty()) {
-                String msg = "No notification configurations found for tenant ID: ";
-                log.warn(msg);
-                return Response.status(Response.Status.NOT_FOUND).entity(msg).build();
-            }
-            return Response.status(Response.Status.OK).entity(configurations).build();
-        }
-        catch (NotificationConfigurationServiceException e) {
-            String msg = "Unexpected error occurred while retrieving notification configurations.";
-            log.error(msg, e);
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(msg).build();
-        }
-    }
+
 }
