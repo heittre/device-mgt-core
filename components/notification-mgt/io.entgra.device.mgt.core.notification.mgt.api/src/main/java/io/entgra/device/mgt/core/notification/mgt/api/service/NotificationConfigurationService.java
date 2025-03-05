@@ -17,7 +17,6 @@
  */
 
 package io.entgra.device.mgt.core.notification.mgt.api.service;
-
 import io.entgra.device.mgt.core.apimgt.annotations.Scopes;
 import io.entgra.device.mgt.core.notification.mgt.api.beans.ErrorResponse;
 import io.entgra.device.mgt.core.notification.mgt.common.beans.NotificationConfig;
@@ -25,12 +24,9 @@ import io.entgra.device.mgt.core.notification.mgt.common.beans.NotificationConfi
 import io.entgra.device.mgt.core.notification.mgt.common.exception.NotificationConfigurationServiceException;
 import io.swagger.annotations.*;
 import org.apache.axis2.transport.http.HTTPConstants;
-
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-
-
 @SwaggerDefinition(
         info = @Info(
                 version = "1.0.0",
@@ -46,7 +42,6 @@ import javax.ws.rs.core.Response;
                 @Tag(name = "notification_management")
         }
 )
-
 @Api(value = "Notification Configuration Management")
 @Scopes(
         scopes = {
@@ -62,9 +57,7 @@ import javax.ws.rs.core.Response;
 @Path("/notification-configuration")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
-
 public interface NotificationConfigurationService {
-
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @ApiOperation(
@@ -116,9 +109,6 @@ public interface NotificationConfigurationService {
             )
             NotificationConfigurationList configurations
     );
-
-
-
     @PUT
     @Consumes(MediaType.APPLICATION_JSON)
     @ApiOperation(
@@ -171,46 +161,6 @@ public interface NotificationConfigurationService {
             )
             NotificationConfig configuration
     );
-
-    @GET
-    @ApiOperation(
-            produces = MediaType.APPLICATION_JSON,
-            httpMethod = HTTPConstants.HEADER_GET,
-            value = "View Notification Configurations",
-            notes = "Retrieve the list of notification configurations for the current tenant.",
-            tags = "Notification Configuration Management",
-            extensions = {
-                    @Extension(properties = {
-                            @ExtensionProperty(name = "Scope", value = "dm:notificationConfig:view"),
-                            @ExtensionProperty(name = "context", value = "/api/notification-mgt/v1.0/notification-configuration")
-                    })
-            }
-
-    )
-    @ApiResponses(
-            value = {
-                    @ApiResponse(
-                            code = 200,
-                            message = "OK. \n Successfully retrieved notification configurations.",
-                            response = NotificationConfig.class,
-                            responseContainer = "List"
-                    ),
-                    @ApiResponse(
-                            code = 404,
-                            message = "Not Found. \n No configurations found for the tenant.",
-                            response = ErrorResponse.class
-                    ),
-                    @ApiResponse(
-                            code = 500,
-                            message = "Internal Server Error. \n Server error occurred while retrieving configurations.",
-                            response = ErrorResponse.class
-                    )
-            }
-    )
-    @Produces(MediaType.APPLICATION_JSON)
-    Response getNotificationConfigurations();
-
-
     @GET
     @Path("/{id}")
     @ApiOperation(
@@ -245,7 +195,6 @@ public interface NotificationConfigurationService {
                     response = ErrorResponse.class
             )}
     )
-
     Response getNotificationConfig(
             @ApiParam(
                     name = "id",
@@ -254,7 +203,6 @@ public interface NotificationConfigurationService {
             )
             @PathParam("id") String configId
     ) ;
-
     @DELETE
     @Path("/{configId}")
     @ApiOperation(
@@ -278,8 +226,6 @@ public interface NotificationConfigurationService {
             )
             @PathParam("configId") String configId
     ) throws NotificationConfigurationServiceException;
-
-
     @DELETE
     @ApiOperation(
             produces = MediaType.APPLICATION_JSON,
@@ -323,6 +269,4 @@ public interface NotificationConfigurationService {
             }
     )
     Response deleteNotificationConfigurations();
-
-
 }

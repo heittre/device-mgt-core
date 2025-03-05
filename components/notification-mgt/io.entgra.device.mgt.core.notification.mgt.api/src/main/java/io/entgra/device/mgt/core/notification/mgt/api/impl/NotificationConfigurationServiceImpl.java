@@ -43,31 +43,23 @@ import javax.ws.rs.core.Response;
 @Produces(MediaType.APPLICATION_JSON)
 public class NotificationConfigurationServiceImpl implements NotificationConfigurationService {
     private static final Log log = LogFactory.getLog(NotificationConfigurationServiceImpl.class);
-
-
-
     private boolean configurationsAreEmpty(NotificationConfigurationList configurations) {
         return configurations == null;
-
     }
     private boolean configurationIsEmpty(NotificationConfig configuration) {
         return configuration == null;
-
     }
-
     private boolean configurationIsValid(NotificationConfig config) {
         return config.getRecipients() != null;
     }
     private boolean configIDIsNUll(NotificationConfig config) {
         return config.getId() == null;
     }
-
     public Response createNotificationConfig(NotificationConfigurationList configurations)  {
         try {
             NotificationConfigurationList validConfigurations = new NotificationConfigurationList();
             NotificationConfigService notificationConfigService =
                     NotificationConfigurationApiUtil.getNotificationConfigurationService();
-
             for (NotificationConfig config : configurations.getList()) {
                 if (!configurationIsValid(config)) {
                     log.warn("Skipping invalid configuration: " + config);
@@ -75,14 +67,12 @@ public class NotificationConfigurationServiceImpl implements NotificationConfigu
                 }
                 validConfigurations.add(config);
             }
-
             if (validConfigurations.isEmpty()) {
                 if (log.isDebugEnabled()) {
                     log.debug("Empty valid configurations");
                 }
                 return Response.status(Response.Status.BAD_REQUEST).entity("Empty Configurations.").build();
             }
-
             notificationConfigService.addNotificationConfigContext(validConfigurations);
             return Response.status(Response.Status.CREATED).entity("Notification configuration(s) created successfully.").build();
         } catch (NotificationConfigurationServiceException e) {
@@ -93,15 +83,12 @@ public class NotificationConfigurationServiceImpl implements NotificationConfigu
             throw new RuntimeException(e);
         }
     }
-
     @Override
     public Response updateNotificationConfig(NotificationConfig config) {
         try {
             NotificationConfigService notificationConfigService =
                     NotificationConfigurationApiUtil.getNotificationConfigurationService();
-
             if (configurationIsEmpty(config)) {
-
                 String msg = "Configuration object cannot be null.";
                 log.error(msg);
                 return Response.status(Response.Status.BAD_REQUEST).entity(msg).build();
@@ -111,32 +98,26 @@ public class NotificationConfigurationServiceImpl implements NotificationConfigu
                 log.error(msg);
                 return Response.status(Response.Status.BAD_REQUEST).entity(msg).build();
             }
-
-                if (configurationIsValid(config)) {
+            if (configurationIsValid(config)) {
                     String msg = "Invalid configuration: Missing configType or recipients.";
                     log.error(msg);
                     return Response.status(Response.Status.BAD_REQUEST).entity(msg).build();
                 }
                 log.info("Processing configuration: " + config.toString());
                 notificationConfigService.updateNotificationConfigContext(config);
-
-            return Response.status(Response.Status.OK).entity("Notification configuration(s) updated successfully.").build();
+                return Response.status(Response.Status.OK).entity("Notification configuration(s) updated successfully.").build();
         }
          catch (NotificationConfigurationServiceException e) {
             String msg = "Error occurred while updating Meta data";
             log.error(msg, e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("Error Occured while updating Notification configuration(s) .").build();
-
-         }
+        }
     }
-
-
     @Override
     public Response deleteNotificationConfig(String configId) {
         try {
             NotificationConfigService notificationConfigService =
                     NotificationConfigurationApiUtil.getNotificationConfigurationService();
-
             if (configId == null) {
                 String msg = "Received empty Configuration ID";
                 log.error(msg);
@@ -150,54 +131,23 @@ public class NotificationConfigurationServiceImpl implements NotificationConfigu
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(msg).build();
         }
     }
-
-
     @Override
     public Response deleteNotificationConfigurations()  {
         try {
             NotificationConfigService notificationConfigService =
                     NotificationConfigurationApiUtil.getNotificationConfigurationService();
-
             notificationConfigService.deleteNotificationConfigurations();
             return Response.status(Response.Status.NO_CONTENT).build();
-
         } catch (NotificationConfigurationServiceException e) {
             String msg = "No configurations found for the tenant: " + e.getMessage();
             log.error(msg);
             return Response.status(Response.Status.NOT_FOUND).entity(msg).build();
         }
     }
-    @GET
-    @Override
-    public Response getNotificationConfigurations(){
-        try {
-            NotificationConfigService notificationConfigService =
-                    NotificationConfigurationApiUtil.getNotificationConfigurationService();
-
-            // Retrieve configurations from the service layer
-            NotificationConfigurationList configurations = notificationConfigService.getNotificationConfigurations();
-//
-
-            if (configurations.isEmpty()) {
-                String msg = "No notification configurations found for tenant ID: ";
-                log.warn(msg);
-                return Response.status(Response.Status.NOT_FOUND).entity(msg).build();
-            }
-
-            return Response.status(Response.Status.OK).entity(configurations).build();
-        }
-        catch (NotificationConfigurationServiceException e) {
-            String msg = "Unexpected error occurred while retrieving notification configurations.";
-            log.error(msg, e);
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(msg).build();
-        }
-    }
-
     public Response getNotificationConfig(String configID)  {
         try {
             NotificationConfigService notificationConfigService =
                     NotificationConfigurationApiUtil.getNotificationConfigurationService();
-
             NotificationConfig config = notificationConfigService.getNotificationConfigByID(configID);
             if (config == null) {
                 String msg = "Notification configuration with ID '" + configID + "' not found.";
@@ -211,7 +161,4 @@ public class NotificationConfigurationServiceImpl implements NotificationConfigu
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(msg).build();
         }
     }
-
-
-
 }
