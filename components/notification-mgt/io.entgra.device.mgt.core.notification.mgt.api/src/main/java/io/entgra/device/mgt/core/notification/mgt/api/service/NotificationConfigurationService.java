@@ -52,7 +52,7 @@ import javax.ws.rs.core.Response;
                 @Scope(
                         name = "Create Notification Configuration",
                         description = "Create new notification configurations",
-                        key = "dm:notificationConfig:create",
+                        key = "dm:notifications:view",
                         roles = {"Internal/devicemgt-user"},
                         permissions = {"/device-mgt/notifications/view"} //check
                 ),
@@ -80,7 +80,7 @@ public interface NotificationConfigurationService {
             tags = "Notification Configuration Management",
             extensions = {
                     @Extension(properties = {
-                            @ExtensionProperty(name = SCOPE, value = "dm:notificationConfig:view"),
+                            @ExtensionProperty(name = SCOPE, value = "dm:notifications:view"),
                             @ExtensionProperty(name = "context", value = "/api/notification-mgt/v1.0/notification-configuration") //check
                     })
             }

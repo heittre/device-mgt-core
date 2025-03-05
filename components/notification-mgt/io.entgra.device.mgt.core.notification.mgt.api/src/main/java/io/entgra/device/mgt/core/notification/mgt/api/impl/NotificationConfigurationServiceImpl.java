@@ -59,10 +59,9 @@ public class NotificationConfigurationServiceImpl implements NotificationConfigu
     @Override
     public Response getNotificationConfigurations(
         @QueryParam("offset") int offset, @QueryParam("limit") int limit) {
-
-            NotificationConfigService notificationConfigService =
-                    NotificationConfigurationApiUtil.getNotificationConfigurationService();
             try {
+
+                NotificationConfigService notificationConfigService = NotificationConfigurationApiUtil.getNotificationConfigurationService();
                 // Retrieve configurations from the service layer
                 NotificationConfigurationList configurations = notificationConfigService.getNotificationConfigurations();
                 if (configurations.isEmpty()) {
@@ -102,8 +101,6 @@ public class NotificationConfigurationServiceImpl implements NotificationConfigu
             String msg = "Unexpected error occurred while creating notification configurations.";
             log.error(msg, e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(msg).build();
-        } catch (RuntimeException e) {
-            throw new RuntimeException(e);
         }
     }
 
