@@ -12,10 +12,31 @@ public interface NotificationConfigService {
      * @throws NotificationConfigurationServiceException Throws when error occurred while retrieving notifications.
      */
         void addNotificationConfigContext(NotificationConfigurationList configurations) throws NotificationConfigurationServiceException;
+
         void deleteNotificationConfigContext(String configID) throws NotificationConfigurationServiceException;
+
         void updateNotificationConfigContext(NotificationConfig updatedConfig) throws NotificationConfigurationServiceException;
+    /**
+     * Delete Notification Configurations for a tenant.
+     *
+     * @return {@link Object < Notification Configuration>}
+     * @throws NotificationConfigurationServiceException Throws when error occurred while retrieving notifications.
+     */
         void deleteNotificationConfigurations() throws NotificationConfigurationServiceException;
+
+    /**
+     * Retrieve the  list of notification configurations for a tenant.
+     *
+     * @return {@link List < Notification Configurations>}
+     * @throws NotificationConfigurationServiceException Throws when error occurred while retrieving notifications.
+     */
         NotificationConfigurationList getNotificationConfigurations() throws NotificationConfigurationServiceException;
+    /**
+     * Retrieve a notification Configuration By Config ID for a tenant.
+     *
+     * @return {@link Object < Notification Configuration>}
+     * @throws NotificationConfigurationServiceException Throws when error occurred while retrieving notifications.
+     */
         NotificationConfig getNotificationConfigByID(String configID) throws NotificationConfigurationServiceException;
 
 

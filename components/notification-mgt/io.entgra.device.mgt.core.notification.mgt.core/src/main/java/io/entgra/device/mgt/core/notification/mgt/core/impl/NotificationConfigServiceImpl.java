@@ -23,7 +23,7 @@ import com.google.gson.reflect.TypeToken;
 import io.entgra.device.mgt.core.device.mgt.common.metadata.mgt.Metadata;
 import io.entgra.device.mgt.core.device.mgt.common.metadata.mgt.MetadataManagementService;
 import io.entgra.device.mgt.core.device.mgt.core.internal.DeviceManagementDataHolder;
-import io.entgra.device.mgt.core.device.mgt.core.metadata.mgt.dao.util.MetadataConstants;
+import io.entgra.device.mgt.core.notification.mgt.core.util.MetadataConstants;
 import io.entgra.device.mgt.core.notification.mgt.common.beans.NotificationConfig;
 import io.entgra.device.mgt.core.notification.mgt.common.beans.NotificationConfigurationList;
 import io.entgra.device.mgt.core.notification.mgt.common.exception.NotificationConfigurationServiceException;
@@ -45,6 +45,7 @@ public class NotificationConfigServiceImpl implements NotificationConfigService 
     MetadataManagementService metadataManagementService = NotificationManagementDataHolder.getInstance().getMetaDataManagementService();
 
     public void addNotificationConfigContext(NotificationConfigurationList configurations) throws NotificationConfigurationServiceException {
+
         Metadata configMetadata = constructNotificationConfigContext(configurations);
         try {
             metadataManagementService.createMetadata(configMetadata);
@@ -62,6 +63,7 @@ public class NotificationConfigServiceImpl implements NotificationConfigService 
      * @return A Metadata object containing the serialized notification configuration.
      */
     public Metadata constructNotificationConfigContext(NotificationConfigurationList configurations){
+
             Metadata configMetadata = new Metadata();
             configMetadata.setMetaKey(MetadataConstants.NOTIFICATION_CONFIG_META_KEY);
             configMetadata.setMetaValue(gson.toJson(configurations));
@@ -77,6 +79,7 @@ public class NotificationConfigServiceImpl implements NotificationConfigService 
      * configuration matching the provided operationCode, and updates the Metadata context with the remaining configurations.
      */
     public void deleteNotificationConfigContext(String configID) throws NotificationConfigurationServiceException {
+
         try {
             Metadata existingMetadata = metadataManagementService.retrieveMetadata(MetadataConstants.NOTIFICATION_CONFIG_META_KEY);
             if (existingMetadata == null) {

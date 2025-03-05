@@ -92,9 +92,6 @@ public class NotificationConfig {
         this.description = description;
     }
 
-
-
-
     public NotificationConfigRecipients getRecipients() {
         return recipients;
     }
@@ -134,7 +131,5 @@ public class NotificationConfig {
     public void setConfiguredBy(ConfiguredBy configuredBy) {
         this.configuredBy = configuredBy;
     }
-
-
 
 }

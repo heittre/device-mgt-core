@@ -27,6 +27,7 @@ import org.apache.axis2.transport.http.HTTPConstants;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+
 @SwaggerDefinition(
         info = @Info(
                 version = "1.0.0",
@@ -54,6 +55,7 @@ import javax.ws.rs.core.Response;
                 ),
         }
 )
+
 @Path("/notification-configuration")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
@@ -109,6 +111,7 @@ public interface NotificationConfigurationService {
             )
             NotificationConfigurationList configurations
     );
+
     @PUT
     @Consumes(MediaType.APPLICATION_JSON)
     @ApiOperation(
@@ -161,6 +164,7 @@ public interface NotificationConfigurationService {
             )
             NotificationConfig configuration
     );
+
     @GET
     @Path("/{id}")
     @ApiOperation(
@@ -203,6 +207,7 @@ public interface NotificationConfigurationService {
             )
             @PathParam("id") String configId
     ) ;
+
     @DELETE
     @Path("/{configId}")
     @ApiOperation(
@@ -240,6 +245,7 @@ public interface NotificationConfigurationService {
                     })
             }
     )
+
     @ApiResponses(
             value = {
                     @ApiResponse(

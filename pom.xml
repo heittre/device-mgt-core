@@ -23,12 +23,6 @@
     <groupId>io.entgra.device.mgt.core</groupId>
     <artifactId>device-mgt-core</artifactId>
     <packaging>pom</packaging>
-    <dependencies>
-        <dependency>
-            <groupId>io.swagger</groupId>
-            <artifactId>swagger-jaxrs</artifactId>
-        </dependency>
-    </dependencies>
     <version>7.0.3-SNAPSHOT</version>
     <name>Entgra Device Management - Parent</name>
     <url>https://entgra.io</url>

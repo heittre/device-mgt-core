@@ -42,7 +42,9 @@ import javax.ws.rs.core.Response;
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 public class NotificationConfigurationServiceImpl implements NotificationConfigurationService {
+
     private static final Log log = LogFactory.getLog(NotificationConfigurationServiceImpl.class);
+
     private boolean configurationsAreEmpty(NotificationConfigurationList configurations) {
         return configurations == null;
     }
@@ -55,6 +57,7 @@ public class NotificationConfigurationServiceImpl implements NotificationConfigu
     private boolean configIDIsNUll(NotificationConfig config) {
         return config.getId() == null;
     }
+
     public Response createNotificationConfig(NotificationConfigurationList configurations)  {
         try {
             NotificationConfigurationList validConfigurations = new NotificationConfigurationList();
@@ -83,6 +86,7 @@ public class NotificationConfigurationServiceImpl implements NotificationConfigu
             throw new RuntimeException(e);
         }
     }
+
     @Override
     public Response updateNotificationConfig(NotificationConfig config) {
         try {
@@ -113,6 +117,7 @@ public class NotificationConfigurationServiceImpl implements NotificationConfigu
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("Error Occured while updating Notification configuration(s) .").build();
         }
     }
+
     @Override
     public Response deleteNotificationConfig(String configId) {
         try {
@@ -131,6 +136,7 @@ public class NotificationConfigurationServiceImpl implements NotificationConfigu
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(msg).build();
         }
     }
+
     @Override
     public Response deleteNotificationConfigurations()  {
         try {
@@ -144,6 +150,7 @@ public class NotificationConfigurationServiceImpl implements NotificationConfigu
             return Response.status(Response.Status.NOT_FOUND).entity(msg).build();
         }
     }
+
     public Response getNotificationConfig(String configID)  {
         try {
             NotificationConfigService notificationConfigService =
@@ -161,4 +168,5 @@ public class NotificationConfigurationServiceImpl implements NotificationConfigu
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(msg).build();
         }
     }
+
 }

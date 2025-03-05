@@ -5,8 +5,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.time.Duration;
 import java.util.List;
 
-
-
 public class NotificationConfigBatchNotifications {
         @JsonProperty("enabled")
         private boolean enabled = true;
