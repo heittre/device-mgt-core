@@ -72,15 +72,15 @@ public class NotificationManagementServiceComponent {
             log.error(msg, t);
         }
 
-        try {
-            MetadataManagementService metaDataManagementService = new MetadataManagementServiceImpl();
-            NotificationManagementDataHolder.getInstance().setMetaDataManagementService(metaDataManagementService);
-            bundleContext.registerService(MetadataManagementService.class.getName(),
-                    metaDataManagementService, null);
-        } catch (Throwable t) {
-            String msg = "Error occurred while activating Meta Data Management Service " ;
-            log.error(msg, t);
-        }
+//        try {
+//            MetadataManagementService metaDataManagementService = new MetadataManagementServiceImpl();
+//            NotificationManagementDataHolder.getInstance().setMetaDataManagementService(metaDataManagementService);
+//            bundleContext.registerService(MetadataManagementService.class.getName(),
+//                    metaDataManagementService, null);
+//        } catch (Throwable t) {
+//            String msg = "Error occurred while activating Meta Data Management Service " ;
+//            log.error(msg, t);
+//        }
 
 
         /* Registering Notification Configuration  Service */

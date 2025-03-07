@@ -22,7 +22,6 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import io.entgra.device.mgt.core.device.mgt.common.metadata.mgt.Metadata;
 import io.entgra.device.mgt.core.device.mgt.common.metadata.mgt.MetadataManagementService;
-import io.entgra.device.mgt.core.device.mgt.core.internal.DeviceManagementDataHolder;
 import io.entgra.device.mgt.core.notification.mgt.core.util.MetadataConstants;
 import io.entgra.device.mgt.core.notification.mgt.common.beans.NotificationConfig;
 import io.entgra.device.mgt.core.notification.mgt.common.beans.NotificationConfigurationList;
@@ -40,8 +39,8 @@ import java.util.NoSuchElementException;
 public class NotificationConfigServiceImpl implements NotificationConfigService {
     private static final Log log = LogFactory.getLog(NotificationConfigServiceImpl.class);
     private static final Gson gson = new Gson();
-    private static final NotificationConfig notificationConfig = new NotificationConfig();
     private static NotificationConfigurationList configurations = new NotificationConfigurationList();
+//    private static  NotificationConfig notificationConfig = new NotificationConfig();
     MetadataManagementService metadataManagementService = NotificationManagementDataHolder.getInstance().getMetaDataManagementService();
 
     public void addNotificationConfigContext(NotificationConfigurationList configurations) throws NotificationConfigurationServiceException {
