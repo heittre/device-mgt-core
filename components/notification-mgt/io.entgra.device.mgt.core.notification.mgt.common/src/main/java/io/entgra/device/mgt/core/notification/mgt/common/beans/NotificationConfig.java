@@ -10,11 +10,17 @@ import java.time.LocalDateTime;
 @ApiModel(value = "NotificationConfig", description = "Notification Configurations")
 public class NotificationConfig {
 
+    private static int idCounter = 1;
+
+    public NotificationConfig() {
+        this.configId = idCounter++; // Assign unique ID when object is created
+    }
+
     @ApiModelProperty(name = "id", value = "The ID of the notification configuration.", required = true)
-    private String id;
+    private int configId;
 
     @ApiModelProperty(name = "name", value = "The name of the notification configuration.", required = true)
-    private String name;
+    private String configName;
 
 
     @ApiModelProperty(name = "description", value = "The description of the notification configuration.", required = true)
@@ -72,16 +78,16 @@ public class NotificationConfig {
         private LocalDateTime lastModifiedAt;
     }
 
-    public String getId() {
-        return id;
+    public int getId() {
+        return configId;
     }
 
-    public void setId(String id) {
-        this.id = id;
+    public void setId(int id) {
+        this.configId = id;
     }
 
     public void setName(String name) {
-        this.name = name;
+        this.configName = name;
     }
 
     public String getDescription() {

@@ -30,7 +30,7 @@ public class NotificationConfigurationList {
     private List<NotificationConfig> notificationConfigurations = new ArrayList<>();
 
     @ApiModelProperty(value = "List of devices returned")
-    @JsonProperty("notification configurations")
+    @JsonProperty("notificationConfigurations")
     public List<NotificationConfig> getList() {
         return notificationConfigurations;
     }

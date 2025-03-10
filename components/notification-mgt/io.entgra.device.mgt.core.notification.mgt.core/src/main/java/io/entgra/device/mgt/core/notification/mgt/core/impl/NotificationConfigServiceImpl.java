@@ -78,7 +78,7 @@ public class NotificationConfigServiceImpl implements NotificationConfigService 
      * This method retrieves the existing notification configuration context for the given tenant, removes the
      * configuration matching the provided operationCode, and updates the Metadata context with the remaining configurations.
      */
-    public void deleteNotificationConfigContext(String configID) throws NotificationConfigurationServiceException {
+    public void deleteNotificationConfigContext(int configID) throws NotificationConfigurationServiceException {
 
         try {
             Metadata existingMetadata = metadataManagementService.retrieveMetadata(MetadataConstants.NOTIFICATION_CONFIG_META_KEY);
@@ -91,7 +91,7 @@ public class NotificationConfigServiceImpl implements NotificationConfigService 
             Type listType = new TypeToken<NotificationConfig>() {}.getType();
             NotificationConfigurationList configurations = gson.fromJson(metaValue, listType);
             // Remove configuration with the given operationCode
-            boolean isRemoved = configurations.getList().removeIf(config -> config.getId().equals(configID));
+            boolean isRemoved = configurations.getList().removeIf(config -> config.getId() == configID);
             if (!isRemoved) {
                 String message = "No configuration found with config ID: " + configID;
                 log.error(message);
@@ -137,7 +137,7 @@ public class NotificationConfigServiceImpl implements NotificationConfigService 
                 // Update or add the updatedConfig
                 boolean isUpdated = false;
                 for (int i = 0; i < configurations.size(); i++) {
-                    if (configurations.get(i).getId().equals(updatedConfig.getId())) {
+                    if (configurations.get(i).getId() == updatedConfig.getId()) {
                         configurations.set(i, updatedConfig);
                         isUpdated = true;
                         break;
@@ -202,10 +202,9 @@ public class NotificationConfigServiceImpl implements NotificationConfigService 
             log.info("Meta value: " + metaValue);
             // Directly deserialize into a List of NotificationConfig
             Type listType = new TypeToken<List<NotificationConfig>>() {}.getType();
-
             List<NotificationConfig> configList = gson.fromJson(metaValue, listType);
             if (configList == null) {
-                configList = new ArrayList<>();
+                log.error("Meta value could not be deserialized.");
             }
             configurations.setList(configList);
         } catch (MetadataManagementException e) {
@@ -215,7 +214,7 @@ public class NotificationConfigServiceImpl implements NotificationConfigService 
         }
         return configurations;
     }
-    public NotificationConfig getNotificationConfigByID(String configID) throws NotificationConfigurationServiceException {
+    public NotificationConfig getNotificationConfigByID(int configID) throws NotificationConfigurationServiceException {
         try {
             Metadata metaData = metadataManagementService.retrieveMetadata(MetadataConstants.NOTIFICATION_CONFIG_META_KEY);
             if (metaData == null) {
@@ -224,12 +223,12 @@ public class NotificationConfigServiceImpl implements NotificationConfigService 
             }
             String metaValue = metaData.getMetaValue();
             // Directly deserialize into a List of NotificationConfig
-            Type listType = new TypeToken<NotificationConfig>() {}.getType();
+            Type listType = new TypeToken<List<NotificationConfig>>() {}.getType();
             NotificationConfigurationList configurations = gson.fromJson(metaValue, listType);
             // Search for the configuration with the given operationCode
             if (configurations != null) {
                 for (NotificationConfig config : configurations.getList()) {
-                    if (config.getId().equals(configID)) {
+                    if (config.getId() == configID) {
                         return config;
                     }
                 }

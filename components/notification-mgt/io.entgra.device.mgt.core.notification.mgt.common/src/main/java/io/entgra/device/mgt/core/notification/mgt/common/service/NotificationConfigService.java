@@ -13,7 +13,7 @@ public interface NotificationConfigService {
      */
         void addNotificationConfigContext(NotificationConfigurationList configurations) throws NotificationConfigurationServiceException;
 
-        void deleteNotificationConfigContext(String configID) throws NotificationConfigurationServiceException;
+        void deleteNotificationConfigContext(int configID) throws NotificationConfigurationServiceException;
 
         void updateNotificationConfigContext(NotificationConfig updatedConfig) throws NotificationConfigurationServiceException;
     /**
@@ -37,7 +37,7 @@ public interface NotificationConfigService {
      * @return {@link Object < Notification Configuration>}
      * @throws NotificationConfigurationServiceException Throws when error occurred while retrieving notifications.
      */
-        NotificationConfig getNotificationConfigByID(String configID) throws NotificationConfigurationServiceException;
+        NotificationConfig getNotificationConfigByID(int configID) throws NotificationConfigurationServiceException;
 
 
 }

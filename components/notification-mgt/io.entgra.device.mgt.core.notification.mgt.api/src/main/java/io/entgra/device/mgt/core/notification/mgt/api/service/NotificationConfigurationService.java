@@ -267,7 +267,7 @@ public interface NotificationConfigurationService {
                     value = "config ID of the notification configuration to be retrieved.",
                     required = true
             )
-            @PathParam("id") String configId
+            @PathParam("id") int configId
     ) ;
 
     @DELETE
@@ -291,7 +291,7 @@ public interface NotificationConfigurationService {
                     value = "The configuration ID",
                     required = true
             )
-            @PathParam("configId") String configId
+            @PathParam("configId") int configId
     ) throws NotificationConfigurationServiceException;
     @DELETE
     @ApiOperation(

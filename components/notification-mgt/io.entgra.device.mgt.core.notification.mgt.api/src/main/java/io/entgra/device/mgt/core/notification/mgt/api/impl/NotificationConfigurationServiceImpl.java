@@ -52,7 +52,7 @@ public class NotificationConfigurationServiceImpl implements NotificationConfigu
         return config.getRecipients() != null;
     }
     private boolean configIDIsNUll(NotificationConfig config) {
-        return config.getId() == null;
+        return config.getId() == 0;
     }
 
     @GET
@@ -136,11 +136,11 @@ public class NotificationConfigurationServiceImpl implements NotificationConfigu
     }
 
     @Override
-    public Response deleteNotificationConfig(String configId) {
+    public Response deleteNotificationConfig(int configId) {
         try {
             NotificationConfigService notificationConfigService =
                     NotificationConfigurationApiUtil.getNotificationConfigurationService();
-            if (configId == null) {
+            if (configId == 0) {
                 String msg = "Received empty Configuration ID";
                 log.error(msg);
                 return Response.status(Response.Status.BAD_REQUEST).entity(msg).build();
@@ -168,7 +168,7 @@ public class NotificationConfigurationServiceImpl implements NotificationConfigu
         }
     }
 
-    public Response getNotificationConfig(String configID)  {
+    public Response getNotificationConfig(int configID)  {
         try {
             NotificationConfigService notificationConfigService =
                     NotificationConfigurationApiUtil.getNotificationConfigurationService();
