@@ -32,6 +32,7 @@ import io.entgra.device.mgt.core.device.mgt.common.exceptions.MetadataManagement
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -192,9 +193,20 @@ public class NotificationConfigServiceImpl implements NotificationConfigService 
                 return configurations;
             }
             String metaValue = existingMetadata.getMetaValue();
+            if (metaValue == null) {
+                log.error("Meta value is null for notification configurations.");
+                configurations.setList(Collections.emptyList());
+                return configurations;
+            }
+
+            log.info("Meta value: " + metaValue);
             // Directly deserialize into a List of NotificationConfig
-            Type listType = new TypeToken<NotificationConfig>() {}.getType();
+            Type listType = new TypeToken<List<NotificationConfig>>() {}.getType();
+
             List<NotificationConfig> configList = gson.fromJson(metaValue, listType);
+            if (configList == null) {
+                configList = new ArrayList<>();
+            }
             configurations.setList(configList);
         } catch (MetadataManagementException e) {
             String message = "Unexpected error occurred while retrieving notification configurations for tenant ID: ";
